@@ -1,24 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Client Dashboard</title>
-</head>
+<html>
 <body>
-  <script type="module">
-    import { bootClient } from "./assets/js/client_boot.js";
-    import { mountClientShell } from "./assets/js/client_shell.js";
-    import mod from "./modules/mod_client_dashboard.js";
+<script type="module">
+import { initSession } from "/assets/js/session.js";
+import { registerRoute, resolveRoute, resolveDefaultRoute } from "/assets/js/router.js";
 
-    const user = await bootClient();
-    if(user){
-      mountClientShell("Dashboard", `
-        <h2>Projects</h2>
-        <ul id="projectList"></ul>
-      `);
-      mod();
-    }
-  </script>
+import dashboard from "/modules/mod_dashboard.js";
+import projects from "/modules/mod_projects.js";
+import pipeline from "/modules/mod_pipeline.js";
+import bookings from "/modules/mod_bookings.js";
+import invites from "/modules/mod_invites.js";
+import applications from "/modules/mod_applications.js";
+import roles from "/modules/mod_roles.js";
+
+await initSession();
+
+registerRoute("/", dashboard);
+registerRoute("/projects", projects);
+registerRoute("/pipeline", pipeline);
+registerRoute("/bookings", bookings);
+registerRoute("/invites", invites);
+registerRoute("/applications", applications);
+registerRoute("/roles", roles);
+registerRoute("/client", dashboard);
+registerRoute("/admin", dashboard);
+
+if(location.pathname === "/"){
+  history.replaceState({}, "", resolveDefaultRoute());
+}
+
+await resolveRoute();
+</script>
 </body>
 </html>
