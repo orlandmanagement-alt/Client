@@ -1,7 +1,7 @@
-import { bootClient } from "../../js/client_boot.js";
-import { clientGet } from "../../js/client_api.js";
-import { withClientLoading } from "../../js/client_loading.js";
-import { showClientNotice } from "../../js/client_notice.js";
+import { bootClient } from "../assets/js/client_boot.js";
+import { clientGet } from "../assets/js/client_api.js";
+import { withClientLoading } from "../assets/js/client_loading.js";
+import { showClientNotice } from "../assets/js/client_notice.js";
 
 function getEl(id){
   return document.getElementById(id);
@@ -49,8 +49,8 @@ function renderProjects(items){
 
 async function loadProjects(keyword = ""){
   const path = keyword
-    ? `/functions/api/client/projects_get?q=${encodeURIComponent(keyword)}`
-    : "/functions/api/client/projects_get";
+    ? `/api/client/projects_get?q=${encodeURIComponent(keyword)}`
+    : "/api/client/projects_get";
 
   setInfo("Loading projects...");
 

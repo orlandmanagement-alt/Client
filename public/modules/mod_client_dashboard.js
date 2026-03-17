@@ -1,6 +1,6 @@
-import { bootClient } from "../../js/client_boot.js";
-import { clientGet } from "../../js/client_api.js";
-import { showClientNotice } from "../../js/client_notice.js";
+import { bootClient } from "../assets/js/client_boot.js";
+import { clientGet } from "../assets/js/client_api.js";
+import { showClientNotice } from "../assets/js/client_notice.js";
 
 function renderProjects(items){
   const list = document.getElementById("projectList");
@@ -27,7 +27,7 @@ export default async function(){
   const user = await bootClient();
   if(!user) return;
 
-  const res = await clientGet("/functions/api/client/projects_get");
+  const res = await clientGet("/api/client/projects_get");
   if(!res.ok){
     showClientNotice(res?.data?.message || "Failed to load dashboard projects.", "error");
     renderProjects([]);

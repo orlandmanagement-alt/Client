@@ -1,7 +1,7 @@
-import { bootClient } from "../../js/client_boot.js";
-import { clientGet, clientPost } from "../../js/client_api.js";
-import { withClientLoading } from "../../js/client_loading.js";
-import { showClientNotice } from "../../js/client_notice.js";
+import { bootClient } from "../assets/js/client_boot.js";
+import { clientGet, clientPost } from "../assets/js/client_api.js";
+import { withClientLoading } from "../assets/js/client_loading.js";
+import { showClientNotice } from "../assets/js/client_notice.js";
 
 function getEl(id){
   return document.getElementById(id);
@@ -42,8 +42,8 @@ function renderItems(items){
 
 async function loadShortlists(projectId = ""){
   const path = projectId
-    ? `/functions/api/client/project_shortlists_get?project_id=${encodeURIComponent(projectId)}`
-    : "/functions/api/client/project_shortlists_get";
+    ? `/api/client/project_shortlists_get?project_id=${encodeURIComponent(projectId)}`
+    : "/api/client/project_shortlists_get";
 
   setInfo("Loading shortlists...");
   const res = await clientGet(path);
@@ -72,7 +72,7 @@ async function createShortlist(event){
   }
 
   setInfo("Creating shortlist...");
-  const res = await clientPost("/functions/api/client/project_shortlist_create", {
+  const res = await clientPost("/api/client/project_shortlist_create", {
     project_role_id: projectRoleId,
     talent_user_id: talentUserId
   });

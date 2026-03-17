@@ -1,6 +1,6 @@
-import { bootClient } from "../../js/client_boot.js";
-import { clientGet, clientPost } from "../../js/client_api.js";
-import { showClientNotice } from "../../js/client_notice.js";
+import { bootClient } from "../assets/js/client_boot.js";
+import { clientGet, clientPost } from "../assets/js/client_api.js";
+import { showClientNotice } from "../assets/js/client_notice.js";
 
 function getEl(id){
   return document.getElementById(id);
@@ -41,8 +41,8 @@ function renderItems(items){
 
 async function loadInvites(projectId = ""){
   const path = projectId
-    ? `/functions/api/client/project_invites_get?project_id=${encodeURIComponent(projectId)}`
-    : "/functions/api/client/project_invites_get";
+    ? `/api/client/project_invites_get?project_id=${encodeURIComponent(projectId)}`
+    : "/api/client/project_invites_get";
 
   setInfo("Loading invites...");
   const res = await clientGet(path);
@@ -72,7 +72,7 @@ async function createInvite(event){
   }
 
   setInfo("Sending invite...");
-  const res = await clientPost("/functions/api/client/project_invite_create", {
+  const res = await clientPost("/api/client/project_invite_create", {
     project_role_id: projectRoleId,
     talent_user_id: talentUserId,
     message

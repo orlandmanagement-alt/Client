@@ -7,9 +7,9 @@
 </head>
 <body>
   <script type="module">
-    import { bootClient } from "../../js/client_boot.js";
-    import { mountClientShell } from "../../js/client_shell.js";
-    import mod from "../../modules/client/mod_client_dashboard.js";
+    import { bootClient } from "./assets/js/client_boot.js";
+    import { mountClientShell } from "./assets/js/client_shell.js";
+    import mod from "./modules/mod_client_dashboard.js";
 
     const user = await bootClient();
     if(user){

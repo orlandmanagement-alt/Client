@@ -1,7 +1,7 @@
-import { bootClient } from "../../js/client_boot.js";
-import { clientGet } from "../../js/client_api.js";
-import { withClientLoading } from "../../js/client_loading.js";
-import { showClientNotice } from "../../js/client_notice.js";
+import { bootClient } from "../assets/js/client_boot.js";
+import { clientGet } from "../assets/js/client_api.js";
+import { withClientLoading } from "../assets/js/client_loading.js";
+import { showClientNotice } from "../assets/js/client_notice.js";
 
 function getEl(id){
   return document.getElementById(id);
@@ -43,8 +43,8 @@ function renderItems(items){
 
 async function loadRoles(projectId = ""){
   const path = projectId
-    ? `/functions/api/client/project_roles_get?project_id=${encodeURIComponent(projectId)}`
-    : "/functions/api/client/project_roles_get";
+    ? `/api/client/project_roles_get?project_id=${encodeURIComponent(projectId)}`
+    : "/api/client/project_roles_get";
 
   setInfo("Loading roles...");
   const res = await clientGet(path);

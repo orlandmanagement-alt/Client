@@ -1,6 +1,6 @@
-import { bootClient } from "../../js/client_boot.js";
-import { clientGet } from "../../js/client_api.js";
-import { showClientNotice } from "../../js/client_notice.js";
+import { bootClient } from "../assets/js/client_boot.js";
+import { clientGet } from "../assets/js/client_api.js";
+import { showClientNotice } from "../assets/js/client_notice.js";
 
 function getEl(id){
   return document.getElementById(id);
@@ -29,7 +29,7 @@ export default async function(){
 
   if(info) info.textContent = "Loading project detail...";
 
-  const res = await clientGet(`/functions/api/client/project_detail?id=${encodeURIComponent(projectId)}`);
+  const res = await clientGet(`/api/client/project_detail?id=${encodeURIComponent(projectId)}`);
   if(!res.ok){
     if(info) info.textContent = "Failed to load project detail.";
     showClientNotice(res?.data?.message || "Failed to load project detail.", "error");
