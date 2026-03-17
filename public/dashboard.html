@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard</title>
+</head>
+<body>
+
+<div id="app">Loading dashboard...</div>
+
+<script type="module">
+import { checkSession, redirectToSSO } from "/assets/js/auth_guard.js";
+
+const portal = location.hostname.includes("client") ? "client" : "talent";
+
+async function init() {
+  const user = await checkSession();
+
+  if (!user) {
+    redirectToSSO(portal, "/dashboard.html");
+    return;
+  }
+
+  document.getElementById("app").innerHTML = `
+    <h1>Welcome ${user.user_id}</h1>
+    <p>Dashboard loaded</p>
+  `;
+}
+
+init();
+</script>
+
+</body>
+</html>

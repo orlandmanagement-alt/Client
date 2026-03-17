@@ -1,35 +1,47 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <meta charset="utf-8">
+  <title>Portal</title>
+  <link rel="stylesheet" href="/assets/css/base.css">
+</head>
 <body>
+
+<div id="app">
+  <div id="loading">Loading...</div>
+</div>
+
 <script type="module">
-import { initSession } from "/assets/js/session.js";
-import { registerRoute, resolveRoute, resolveDefaultRoute } from "/assets/js/router.js";
+import { checkSession, redirectToSSO, redirectToRegister } from "/assets/js/auth_guard.js";
 
-import dashboard from "/modules/mod_dashboard.js";
-import projects from "/modules/mod_projects.js";
-import pipeline from "/modules/mod_pipeline.js";
-import bookings from "/modules/mod_bookings.js";
-import invites from "/modules/mod_invites.js";
-import applications from "/modules/mod_applications.js";
-import roles from "/modules/mod_roles.js";
+const portal = location.hostname.includes("client") ? "client" : "talent";
 
-await initSession();
+async function init() {
+  const user = await checkSession();
 
-registerRoute("/", dashboard);
-registerRoute("/projects", projects);
-registerRoute("/pipeline", pipeline);
-registerRoute("/bookings", bookings);
-registerRoute("/invites", invites);
-registerRoute("/applications", applications);
-registerRoute("/roles", roles);
-registerRoute("/client", dashboard);
-registerRoute("/admin", dashboard);
+  if (user) {
+    // ✅ sudah login → masuk dashboard SPA
+    window.location.href = "/dashboard.html";
+    return;
+  }
 
-if(location.pathname === "/"){
-  history.replaceState({}, "", resolveDefaultRoute());
+  // ❌ belum login → tampil landing
+  document.getElementById("app").innerHTML = `
+    <div style="text-align:center;margin-top:100px">
+      <h1>${portal.toUpperCase()} PORTAL</h1>
+      <p>Welcome to Orland Management</p>
+
+      <button onclick="login()">Login</button>
+      <button onclick="register()">Register</button>
+    </div>
+  `;
 }
 
-await resolveRoute();
+window.login = () => redirectToSSO(portal, "/");
+window.register = () => redirectToRegister(portal);
+
+init();
 </script>
+
 </body>
 </html>
