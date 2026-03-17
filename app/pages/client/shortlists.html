@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Client Shortlists</title>
+</head>
+<body>
+  <script type="module">
+    import { mountClientShell } from "../../js/client_shell.js";
+    import mod from "../../modules/client/mod_client_shortlists.js";
+
+    mountClientShell("Project Shortlists", `
+      <div style="margin-top:16px;">
+        <form id="clientShortlistFilterForm">
+          <input id="clientShortlistProjectId" type="text" placeholder="Project ID (optional)">
+          <button type="submit">Load Shortlists</button>
+        </form>
+      </div>
+
+      <div style="margin-top:16px;">
+        <h2>Create Shortlist</h2>
+        <form id="clientShortlistCreateForm">
+          <input id="clientShortlistRoleId" type="text" placeholder="Project Role ID">
+          <input id="clientShortlistTalentId" type="text" placeholder="Talent User ID">
+          <button type="submit">Create Shortlist</button>
+        </form>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div id="clientShortlistInfo">Loading shortlists...</div>
+        <ul id="clientShortlistList"></ul>
+      </div>
+    `);
+
+    mod();
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Client Project Detail</title>
+</head>
+<body>
+  <script type="module">
+    import { mountClientShell } from "../../js/client_shell.js";
+    import mod from "../../modules/client/mod_client_project_detail.js";
+
+    mountClientShell("Project Detail", `
+      <div style="margin-top:16px;">
+        <div id="projectDetailInfo">Loading project detail...</div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <ul>
+          <li>ID: <strong id="pdId">-</strong></li>
+          <li>Title: <strong id="pdTitle">-</strong></li>
+          <li>Status: <strong id="pdStatus">-</strong></li>
+          <li>Type: <strong id="pdType">-</strong></li>
+          <li>Location: <strong id="pdLocation">-</strong></li>
+        </ul>
+      </div>
+    `);
+
+    mod();
+  </script>
+</body>
+</html>

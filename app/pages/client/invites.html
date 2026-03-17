@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Client Invites</title>
+</head>
+<body>
+  <script type="module">
+    import { mountClientShell } from "../../js/client_shell.js";
+    import mod from "../../modules/client/mod_client_invites.js";
+
+    mountClientShell("Invite Talent", `
+      <div style="margin-top:16px;">
+        <form id="clientInviteCreateForm">
+          <input id="clientInviteRoleId" type="text" placeholder="Project Role ID">
+          <input id="clientInviteTalentId" type="text" placeholder="Talent User ID">
+          <textarea id="clientInviteMessage" placeholder="Invite message (optional)"></textarea>
+          <button type="submit">Send Invite</button>
+        </form>
+      </div>
+
+      <div style="margin-top:16px;">
+        <form id="clientInviteFilterForm">
+          <input id="clientInviteProjectId" type="text" placeholder="Project ID (optional)">
+          <button type="submit">Load Invites</button>
+        </form>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div id="clientInviteInfo">Loading invites...</div>
+        <ul id="clientInviteList"></ul>
+      </div>
+    `);
+
+    mod();
+  </script>
+</body>
+</html>

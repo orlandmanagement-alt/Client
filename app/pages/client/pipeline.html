@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Project Pipeline</title>
+</head>
+<body>
+  <script type="module">
+    import { mountClientShell } from "../../js/client_shell.js";
+    import mod from "../../modules/client/mod_client_pipeline.js";
+
+    mountClientShell("Project Pipeline Summary", `
+      <div style="margin-top:16px;">
+        <form id="clientPipelineForm">
+          <input id="clientPipelineProjectId" type="text" placeholder="Project ID">
+          <button type="submit">Load Pipeline</button>
+        </form>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div id="clientPipelineInfo">Ready.</div>
+        <ul>
+          <li>Applications: <strong id="ppApplications">0</strong></li>
+          <li>Shortlists: <strong id="ppShortlists">0</strong></li>
+          <li>Invites: <strong id="ppInvites">0</strong></li>
+          <li>Bookings: <strong id="ppBookings">0</strong></li>
+        </ul>
+      </div>
+    `);
+
+    mod();
+  </script>
+</body>
+</html>

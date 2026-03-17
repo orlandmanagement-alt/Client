@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Client Dashboard</title>
+</head>
+<body>
+  <script type="module">
+    import { bootClient } from "../../js/client_boot.js";
+    import { mountClientShell } from "../../js/client_shell.js";
+    import mod from "../../modules/client/mod_client_dashboard.js";
+
+    const user = await bootClient();
+    if(user){
+      mountClientShell("Dashboard", `
+        <h2>Projects</h2>
+        <ul id="projectList"></ul>
+      `);
+      mod();
+    }
+  </script>
+</body>
+</html>
