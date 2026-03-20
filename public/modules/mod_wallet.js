@@ -1,109 +1,75 @@
 import { apiGet } from "/assets/js/api.js";
 
 export async function render() {
-  return `
-    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 min-h-[80vh]">
-        <h2 class="text-2xl font-black text-gray-800 mb-6"><i class="fa-solid fa-wallet text-gray-900 mr-2"></i> Dompet Poin Klien</h2>
+    return `
+    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 min-h-[80vh] relative">
+        <h2 class="text-xl font-bold text-slate-800 mb-6 border-b border-slate-100 pb-4"><i class="fa-solid fa-wallet text-blue-600 mr-2"></i> Dompet Poin Klien</h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="md:col-span-2 bg-gradient-to-br from-blue-700 to-blue-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                <i class="fa-brands fa-gg-circle absolute -right-6 -bottom-6 text-8xl text-white/10"></i>
+                <p class="text-[11px] font-bold text-blue-200 uppercase tracking-widest mb-1">Saldo Orland Point</p>
+                <div class="flex items-end gap-2">
+                    <h3 class="text-4xl font-black tracking-tight" id="wallet-balance">0</h3>
+                    <span class="text-sm font-bold text-blue-300 mb-1">Poin</span>
+                </div>
+                <p class="text-[11px] text-blue-200 mt-2">1 Poin = Rp 1 (Setara Mata Uang Rupiah)</p>
+            </div>
             
-            <div class="md:col-span-1 bg-gradient-to-br from-gray-900 to-black rounded-3xl p-6 text-white shadow-xl relative overflow-hidden h-fit">
-                <div class="absolute -right-6 -bottom-6 text-yellow-500 opacity-20 text-8xl"><i class="fa-solid fa-coins"></i></div>
-                <div class="relative z-10">
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Saldo Orland Point (OP)</p>
-                    <h3 class="text-5xl font-black text-yellow-400 mb-1" id="w_balance"><i class="fa-solid fa-spinner fa-spin text-2xl"></i></h3>
-                    <p class="text-[10px] text-gray-400 mb-6">1 OP = Rp 1.000</p>
-                    
-                    <button onclick="window.ClientWallet.topup()" class="w-full bg-yellow-400 text-black font-black py-3 rounded-xl hover:bg-yellow-500 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(251,191,36,0.3)]">
-                        <i class="fa-solid fa-plus-circle"></i> Beli Poin (Top-Up)
-                    </button>
-                </div>
+            <div class="flex flex-col gap-3">
+                <button onclick="document.getElementById('modal-topup').classList.replace('hidden','flex')" class="flex-1 bg-blue-50 text-blue-600 border border-blue-200 rounded-xl flex flex-col items-center justify-center p-4 hover:bg-blue-100 transition-colors group">
+                    <i class="fa-solid fa-bolt text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[12px] font-bold uppercase tracking-wider">Beli Poin (Top-Up)</span>
+                </button>
             </div>
-
-            <div class="md:col-span-2 bg-gray-50 rounded-3xl p-6 border border-gray-200">
-                <h4 class="font-black text-gray-800 mb-4 border-b border-gray-200 pb-3"><i class="fa-solid fa-clock-rotate-left mr-2"></i> Riwayat Transaksi</h4>
-                <div id="w_history" class="space-y-3">
-                    <div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-gray-400 text-3xl"></i></div>
-                </div>
-            </div>
-
         </div>
 
-        <div class="mt-8 pt-8 border-t border-gray-100">
-            <h4 class="font-black text-gray-800 mb-4">Pilih Paket Poin</h4>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="border border-gray-200 rounded-2xl p-5 text-center hover:border-yellow-400 hover:shadow-md transition-all bg-white cursor-pointer" onclick="window.ClientWallet.requestTopup(100, 100000)">
-                    <div class="text-3xl text-yellow-400 mb-2"><i class="fa-solid fa-coins"></i></div>
-                    <h5 class="font-black text-xl text-gray-800">100 OP</h5>
-                    <p class="text-xs text-gray-500 font-bold bg-gray-100 py-1 rounded mt-2">Rp 100.000</p>
+        <div>
+            <h3 class="text-[14px] font-bold text-slate-800 mb-4">Riwayat Transaksi</h3>
+            <div id="trx-container" class="space-y-3">
+                <div class="flex flex-col items-center justify-center py-12 bg-slate-50 rounded-xl border border-slate-100">
+                    <i class="fa-solid fa-receipt text-4xl text-slate-300 mb-3"></i>
+                    <h3 class="text-[13px] font-bold text-slate-700">Belum Ada Transaksi</h3>
+                    <p class="text-[11px] text-slate-500 mt-1">Riwayat pengisian dan pemakaian poin Anda akan muncul di sini.</p>
                 </div>
-                <div class="border-2 border-gray-900 rounded-2xl p-5 text-center hover:shadow-lg transition-all bg-gray-50 cursor-pointer relative" onclick="window.ClientWallet.requestTopup(500, 480000)">
-                    <span class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider">Terlaris (Diskon)</span>
-                    <div class="text-4xl text-yellow-400 mb-2"><i class="fa-solid fa-coins"></i></div>
-                    <h5 class="font-black text-2xl text-gray-900">500 OP</h5>
-                    <p class="text-xs text-gray-500 font-bold bg-gray-200 py-1 rounded mt-2">Rp 480.000</p>
+            </div>
+        </div>
+
+        <div id="modal-topup" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-black text-slate-800">Top-Up Poin</h3>
+                    <button onclick="document.getElementById('modal-topup').classList.replace('flex','hidden')" class="w-8 h-8 bg-slate-100 rounded-full text-slate-500 hover:bg-red-100 hover:text-red-500 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <div class="border border-gray-200 rounded-2xl p-5 text-center hover:border-yellow-400 hover:shadow-md transition-all bg-white cursor-pointer" onclick="window.ClientWallet.requestTopup(1000, 950000)">
-                    <div class="text-3xl text-yellow-400 mb-2"><i class="fa-solid fa-sack-dollar"></i></div>
-                    <h5 class="font-black text-xl text-gray-800">1000 OP</h5>
-                    <p class="text-xs text-gray-500 font-bold bg-gray-100 py-1 rounded mt-2">Rp 950.000</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Metode Pembayaran</label>
+                        <select class="w-full border border-slate-200 rounded-xl py-3 px-4 outline-none text-[13px] font-bold bg-slate-50 focus:border-blue-500">
+                            <option>BCA Virtual Account</option><option>Mandiri Virtual Account</option><option>QRIS (GoPay/OVO/Dana)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nominal Poin (Rp)</label>
+                        <input type="number" id="tu-amount" class="w-full border border-slate-200 rounded-xl py-3 px-4 outline-none text-[13px] font-bold bg-slate-50 focus:border-blue-500" placeholder="Contoh: 500000">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-blue-500 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-lock"></i> Masukkan PIN Keamanan</label>
+                        <input type="password" id="tu-pin" maxlength="6" class="w-full border border-blue-200 rounded-xl py-3 px-4 outline-none text-[16px] font-black tracking-[0.5em] text-center bg-blue-50 focus:border-blue-500" placeholder="••••••">
+                    </div>
+                    <button onclick="alert('Memproses Top-Up... Mohon selesaikan pembayaran di Virtual Account Anda.'); document.getElementById('modal-topup').classList.replace('flex','hidden');" class="w-full bg-blue-600 text-white font-black py-3.5 rounded-xl shadow-lg hover:bg-blue-700 mt-2 active:scale-95 transition-transform">Lanjutkan Pembayaran</button>
                 </div>
             </div>
         </div>
     </div>
-  `;
+    `;
 }
-
 export async function initEvents() {
-    window.ClientWallet = {
-        topup: () => {
-            alert("Silakan pilih paket poin di bawah untuk melanjutkan pembayaran.");
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        },
-        requestTopup: async (op, price) => {
-            // Karena ini MVP, kita arahkan ke WhatsApp Admin Orland Management
-            // Di masa depan, fungsi ini memanggil API Midtrans/Xendit
-            const { state } = await import("/assets/js/state.js");
-            const clientName = state?.user?.full_name || 'Klien';
-            
-            const message = `Halo Admin Orland!%0A%0ASaya ingin melakukan Top-Up Saldo Klien:%0ANama: ${clientName}%0APaket: *${op} OP*%0AHarga: *Rp ${price.toLocaleString('id-ID')}*%0A%0AMohon info nomor rekening pembayarannya. Terima kasih!`;
-            const waNumber = "6281234567890"; // GANTI DENGAN NOMOR WA ADMIN ANDA
-            
-            window.open(`https://wa.me/${waNumber}?text=${message}`, '_blank');
+    // API Fetch Dompet (Jika error, biarkan 0, jangan tampilkan tulisan error)
+    try {
+        const res = await apiGet('/functions/api/client/wallet');
+        if(res.ok && res.data) {
+            document.getElementById('wallet-balance').textContent = parseInt(res.data.balance || 0).toLocaleString('id-ID');
         }
-    };
-
-    const res = await apiGet("/functions/api/wallet/info");
-    if(res.ok && res.data) {
-        document.getElementById("w_balance").textContent = res.data.balance;
-        
-        const historyContainer = document.getElementById("w_history");
-        if(res.data.history.length === 0) {
-            historyContainer.innerHTML = `<p class="text-center text-xs text-gray-400 font-bold py-6">Belum ada riwayat transaksi.</p>`;
-        } else {
-            historyContainer.innerHTML = res.data.history.map(h => {
-                const isPlus = h.trx_type === 'topup' || h.trx_type === 'earn';
-                const sign = isPlus ? '+' : '-';
-                const color = isPlus ? 'text-green-500 bg-green-50' : 'text-red-500 bg-red-50';
-                const icon = isPlus ? 'fa-arrow-turn-down' : 'fa-arrow-turn-up';
-                const dateStr = new Date(h.created_at * 1000).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-                
-                return `
-                <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black ${color}"><i class="fa-solid ${icon}"></i></div>
-                        <div>
-                            <p class="text-xs font-bold text-gray-800">${h.note || 'Transaksi Sistem'}</p>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase">${dateStr}</p>
-                        </div>
-                    </div>
-                    <div class="font-black ${isPlus ? 'text-green-600' : 'text-red-600'}">${sign}${h.amount} OP</div>
-                </div>
-                `;
-            }).join("");
-        }
-    } else {
-        document.getElementById("w_balance").textContent = "ERR";
-        document.getElementById("w_history").innerHTML = `<p class="text-center text-red-500 font-bold py-6">Gagal memuat dompet.</p>`;
-    }
+    } catch(e) {}
 }
