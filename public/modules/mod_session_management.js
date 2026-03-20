@@ -1,45 +1,23 @@
-import { loadSessions, revokeSession, logoutAll } from "/assets/js/session_manager.js";
+import { apiPost } from "/assets/js/api.js";
 
-function render(items){
-  const box = document.getElementById("sessionBox");
-  if(!box) return;
-
-  if(!items.length){
-    box.innerHTML = "<div>No active sessions</div>";
-    return;
-  }
-
-  box.innerHTML = items.map(item => `
-    <div style="padding:10px 0;border-bottom:1px solid #eee">
-      <div style="font-weight:600">${item.device_info || item.device_name || "Unknown Device"}</div>
-      <div style="font-size:12px;color:#666">Status: ${item.status || "active"}</div>
-      <div style="font-size:12px;color:#666">Expires: ${item.expires_at || "-"}</div>
-      <button data-session-id="${item.id || item.session_id || ""}" style="margin-top:8px">Revoke</button>
+export async function render() {
+    return `
+    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 max-w-2xl mx-auto min-h-[60vh]">
+        <h2 class="text-xl font-bold text-gray-800 mb-2"><i class="fa-solid fa-shield-halved text-green-500 mr-2"></i> Keamanan Akun</h2>
+        <p class="text-sm text-gray-500 mb-8 border-b border-gray-100 pb-6">Kelola kata sandi dan pengaturan keamanan sesi Anda di sini.</p>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Kata Sandi Baru</label>
+                <input type="password" id="sec_new_pw" class="w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:border-gray-800 outline-none text-sm bg-gray-50 focus:bg-white">
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Konfirmasi Kata Sandi</label>
+                <input type="password" id="sec_conf_pw" class="w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:border-gray-800 outline-none text-sm bg-gray-50 focus:bg-white">
+            </div>
+            <button onclick="alert('Fitur pembaruan kata sandi sedang dalam penyesuaian API.')" class="w-full bg-gray-900 text-white font-bold py-3 rounded-lg text-[13px] hover:bg-black transition-colors mt-4">Perbarui Kata Sandi</button>
+        </div>
     </div>
-  `).join("");
-
-  box.querySelectorAll("button[data-session-id]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-session-id");
-      if(!id) return;
-      const ok = await revokeSession(id);
-      if(ok) await initSessionManagement();
-    });
-  });
+    `;
 }
-
-export default async function initSessionManagement(){
-  const res = await loadSessions();
-  render(res.items || []);
-
-  const logoutAllBtn = document.getElementById("logoutAllBtn");
-  if(logoutAllBtn && !logoutAllBtn.dataset.bound){
-    logoutAllBtn.dataset.bound = "1";
-    logoutAllBtn.addEventListener("click", async () => {
-      const ok = await logoutAll();
-      if(ok){
-        location.href = "https://sso.orlandmanagement.com/";
-      }
-    });
-  }
-}
+export async function initEvents() {}
