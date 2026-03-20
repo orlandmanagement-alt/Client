@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>tailwind.config = { theme: { extend: { colors: { accent: '#1f2937' }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }</script>
+    <script>tailwind.config = { theme: { extend: { colors: { primary: '#fbbf24', dark: '#111827' }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }</script>
 </head>
 <body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
     <div class="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full text-center border border-gray-100">
@@ -25,36 +25,45 @@
     </div>
 
     <script type="module">
-        import { checkSession } from "./assets/js/auth.js";
-        import config from "./assets/js/config.js";
-
         async function init() {
-            const err = sessionStorage.getItem('auth_error');
-            if(err) {
-                document.getElementById('error-msg').textContent = err;
-                document.getElementById('error-msg').classList.remove('hidden');
-                sessionStorage.removeItem('auth_error');
-            }
-
-            const user = await checkSession();
             const area = document.getElementById('auth-area');
-            
-            if (user) {
-                if(user.role === 'client') {
-                    area.innerHTML = `
-                        <div class="bg-green-50 text-green-700 p-3 rounded-xl mb-4 text-sm font-bold border border-green-200"><i class="fa-solid fa-circle-check"></i> Sesi Ditemukan!</div>
-                        <button onclick="window.location.href='/dashboard.html'" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-black transition-all active:scale-95">Masuk ke Dashboard <i class="fa-solid fa-arrow-right ml-2"></i></button>
-                        <button onclick="import('./assets/js/auth.js').then(m=>m.logout())" class="w-full mt-3 text-xs font-bold text-gray-400 hover:text-red-500">Bukan Anda? Logout</button>
-                    `;
+            try {
+                const { checkSession } = await import("./assets/js/session_manager.js");
+                const { default: config } = await import("./assets/js/config.js");
+
+                const err = sessionStorage.getItem('auth_error');
+                if(err) {
+                    document.getElementById('error-msg').textContent = err;
+                    document.getElementById('error-msg').classList.remove('hidden');
+                    sessionStorage.removeItem('auth_error');
+                }
+
+                const user = await checkSession();
+                
+                if (user) {
+                    if(user.role === 'client') {
+                        area.innerHTML = `
+                            <div class="bg-green-50 text-green-700 p-3 rounded-xl mb-4 text-sm font-bold border border-green-200"><i class="fa-solid fa-circle-check"></i> Sesi Ditemukan!</div>
+                            <button onclick="window.location.href='/dashboard.html'" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-black transition-all active:scale-95">Masuk ke Dashboard <i class="fa-solid fa-arrow-right ml-2"></i></button>
+                            <button onclick="import('./assets/js/session_manager.js').then(m=>m.logout())" class="w-full mt-3 text-xs font-bold text-gray-400 hover:text-red-500">Bukan Anda? Logout</button>
+                        `;
+                    } else {
+                        area.innerHTML = `
+                            <div class="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm font-bold border border-red-200">Akses Ditolak. Anda login sebagai ${user.role.toUpperCase()}.</div>
+                            <button onclick="import('./assets/js/session_manager.js').then(m=>m.logout())" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-black">Logout & Ganti Akun</button>
+                        `;
+                    }
                 } else {
                     area.innerHTML = `
-                        <div class="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm font-bold border border-red-200">Akses Ditolak. Anda login sebagai ${user.role.toUpperCase()}.</div>
-                        <button onclick="import('./assets/js/auth.js').then(m=>m.logout())" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-black">Logout & Ganti Akun</button>
+                        <button onclick="window.location.href='${config.SSO_URL}/?redirect=client'" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-black transition-all active:scale-95">Masuk Sebagai Client</button>
                     `;
                 }
-            } else {
+            } catch (error) {
                 area.innerHTML = `
-                    <button onclick="window.location.href='${config.SSO_URL}/?redirect=client'" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-black transition-all active:scale-95">Masuk Sebagai Client</button>
+                    <div class="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-bold border border-red-200 mb-4 text-left">
+                        <i class="fa-solid fa-triangle-exclamation mb-1 text-lg"></i><br>Gagal memuat sistem.<br><span class="text-gray-500 font-normal">${error.message}</span>
+                    </div>
+                    <button onclick="window.location.reload()" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-black">Coba Lagi</button>
                 `;
             }
         }
