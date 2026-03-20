@@ -1,49 +1,32 @@
-// Komponen Card Statistik untuk Dashboard Client
-export function createCard(title, value, icon, color = "blue") {
-    return `
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md">
-        <div class="w-14 h-14 rounded-full bg-${color}-50 text-${color}-500 flex items-center justify-center text-2xl">
-            <i class="${icon}"></i>
-        </div>
-        <div>
-            <p class="text-sm text-gray-500 font-medium mb-1">${title}</p>
-            <h4 class="text-2xl font-bold text-gray-800">${value}</h4>
-        </div>
-    </div>`;
-}
+import { notify } from "./notify.js";
 
-// Komponen Pesan Peringatan
-export function createAlert(message, type = "info") {
-    const colors = { info: "blue", error: "red", success: "green", warning: "orange" };
-    const c = colors[type];
-    return `<div class="bg-${c}-50 text-${c}-600 p-4 rounded-xl border border-${c}-100 text-sm flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> ${message}</div>`;
-}
+export async function loadModule(moduleName, menuElement = null) {
+    const contentArea = document.getElementById('main-content');
+    if(!contentArea) return;
 
-// Komponen Badge Status
-export function createBadge(text, color = "gray") {
-    return `<span class="px-3 py-1 bg-${color}-50 text-${color}-600 rounded-full text-xs font-bold uppercase tracking-wider">${text}</span>`;
-}
+    contentArea.innerHTML = '<div class="flex items-center justify-center h-full min-h-[50vh]"><i class="fa-solid fa-spinner fa-spin text-4xl text-blue-500"></i></div>';
 
-export function maskPhone(phone) {
-    if (!phone || phone.length < 6) return phone || "-";
-    return phone.slice(0, -5) + "****" + phone.slice(-1);
-}
+    try {
+        // PERBAIKAN FATAL: Gunakan Absolute Path (/) agar Browser tidak tersesat!
+        const module = await import(`/modules/mod_${moduleName}.js`);
+        contentArea.innerHTML = await module.render();
+        
+        if (module.initEvents) await module.initEvents();
 
-export function maskEmail(email) {
-    if (!email || !email.includes('@')) return email || "-";
-    const [name, domain] = email.split('@');
-    if (name.length <= 4) return name[0] + "***@" + domain;
-    return name.slice(0, 3) + "*****" + name.slice(-1) + "@" + domain;
-}
+        if(menuElement) {
+            document.querySelectorAll('aside a.nav-item').forEach(el => el.classList.remove('bg-gray-100', 'text-gray-900', 'font-black'));
+            menuElement.classList.add('bg-gray-100', 'text-gray-900', 'font-black');
+        }
+        
+        // Tutup otomatis sidebar mobile jika user mengklik menu
+        const sidebar = document.querySelector('aside');
+        if(window.innerWidth < 1024 && sidebar && !sidebar.classList.contains('-translate-x-full')) {
+            sidebar.classList.add('-translate-x-full');
+        }
 
-export function maskPhone(phone) {
-    if (!phone || phone.length < 6) return phone || "-";
-    return phone.slice(0, -5) + "****" + phone.slice(-1);
-}
-
-export function maskEmail(email) {
-    if (!email || !email.includes('@')) return email || "-";
-    const [name, domain] = email.split('@');
-    if (name.length <= 4) return name[0] + "***@" + domain;
-    return name.slice(0, 3) + "*****" + name.slice(-1) + "@" + domain;
+    } catch (error) {
+        console.error(`Gagal memuat modul ${moduleName}:`, error);
+        contentArea.innerHTML = `<div class="p-8 text-center text-red-500 bg-red-50 rounded-2xl border-2 border-red-200 m-4"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3"></i><br>Gagal memuat modul "${moduleName}". <br><span class="text-xs font-normal text-gray-500">${error.message}</span></div>`;
+        notify("Gagal memuat halaman", "error");
+    }
 }

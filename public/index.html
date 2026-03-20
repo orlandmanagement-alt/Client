@@ -1,73 +1,181 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Hub - Orland Management</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>tailwind.config = { theme: { extend: { colors: { primary: '#fbbf24', dark: '#111827' }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Dashboard - Orland Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  
+  <style>
+      body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; overflow: hidden; }
+      .fade-in { animation: fadeIn 0.4s ease-in-out; }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      .nav-item.active { background-color: #f3f4f6; color: #1f2937; border-right: 4px solid #1f2937; font-weight: 600; }
+  </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full text-center border border-gray-100">
-        <div class="w-20 h-20 bg-gray-100 text-gray-800 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
-            <i class="fa-solid fa-briefcase"></i>
-        </div>
-        <h1 class="text-2xl font-black text-gray-800 tracking-tight mb-2">CLIENT HUB</h1>
-        <p class="text-sm text-gray-500 mb-8">Rekrut Talent & Model Terbaik untuk Proyek Perusahaan Anda.</p>
-        
-        <div id="auth-area">
-            <div class="py-4"><i class="fa-solid fa-spinner fa-spin text-3xl text-gray-400"></i><p class="text-xs text-gray-400 mt-3 font-bold uppercase tracking-widest">Memeriksa Kredensial...</p></div>
-        </div>
-        
-        <p id="error-msg" class="text-xs text-red-500 font-bold mt-4 hidden"></p>
+<body class="text-gray-800 h-screen flex"> 
+
+    <div id="global-loader" class="fixed inset-0 bg-white z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
+        <i class="fa-solid fa-circle-notch fa-spin text-5xl text-blue-600 mb-6"></i>
+        <h2 class="text-xl font-black text-gray-800 tracking-widest uppercase animate-pulse">Memuat Ruang Kerja</h2>
     </div>
 
+    <div id="auth-overlay" class="fixed inset-0 bg-gray-900/95 z-[100000] hidden flex-col items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center transform scale-100 transition-transform">
+            <div class="w-20 h-20 bg-gray-100 text-gray-800 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-2xl font-black text-gray-800 mb-2">Akses Terkunci</h2>
+            <p class="text-sm text-gray-500 mb-6">Silakan masuk menggunakan akun <strong class="uppercase text-gray-800">client</strong> Anda untuk mengakses portal ini.</p>
+            <button onclick="window.location.href='https://sso.orlandmanagement.com/?redirect=client'" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl hover:bg-blue-700 shadow-lg active:scale-95 transition-all">Masuk via Orland SSO</button>
+            <p id="auth-error-msg" class="text-xs text-red-500 font-bold mt-4 hidden"></p>
+        </div>
+    </div>
+    
+
+  <div id="loading-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center transition-opacity duration-300">
+      <i class="fa-solid fa-circle-notch fa-spin text-5xl text-primary mb-4"></i>
+      <h2 class="text-xl font-semibold text-gray-700">Membuka Ruang Kerja...</h2>
+  </div>
+
+  <aside class="w-64 bg-white shadow-xl h-full flex flex-col hidden md:flex z-20">
+      <div class="h-20 flex items-center justify-center border-b border-gray-100 bg-gray-900">
+          <h1 class="text-2xl font-bold text-white tracking-wider">CLIENT<span class="text-accent">HUB</span></h1>
+      </div>
+      
+      <nav class="flex-1 overflow-y-auto py-4">
+          <ul class="space-y-1" id="nav-menu">
+              <li><a href="#" onclick="loadModule('dashboard', this)" class="nav-item active flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 transition-colors"><i class="fa-solid fa-house w-6 text-gray-400"></i> Ringkasan</a></li>
+              <li><a href="#" onclick="loadModule('projects', this)" class="nav-item flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 transition-colors"><i class="fa-solid fa-briefcase w-6 text-gray-400"></i> Kelola Proyek</a></li>
+              <li><a href="#" onclick="loadModule('search', this)" class="nav-item flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 transition-colors"><i class="fa-solid fa-magnifying-glass w-6 text-gray-400"></i> Cari Talent</a></li>
+              <li><a href="#" onclick="loadModule('profile', this)" class="nav-item flex items-center px-6 py-3 text-gray-600 hover:bg-gray-50 transition-colors"><i class="fa-solid fa-building w-6 text-gray-400"></i> Profil Perusahaan</a></li>
+          </ul>
+      </nav>
+
+      <div class="p-4 border-t border-gray-100">
+          <button onclick="window.doLogout()" class="w-full flex items-center justify-center gap-2 bg-red-50 text-red-500 py-2 rounded-lg font-semibold hover:bg-red-100 transition-colors">
+              <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </button>
+      </div>
+  </aside>
+
+  <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+      <header class="h-20 bg-white shadow-sm flex items-center justify-between px-8 z-10">
+          <div class="flex items-center gap-4">
+              <button class="md:hidden text-gray-500 hover:text-primary text-xl"><i class="fa-solid fa-bars"></i></button>
+              <h2 id="page-title" class="text-xl font-semibold text-gray-800 hidden sm:block">Ringkasan</h2>
+          </div>
+          <div class="flex items-center gap-4">
+              <div class="text-right hidden sm:block">
+                  <p id="user-name" class="text-sm font-bold text-gray-800 leading-none">Memuat...</p>
+                  <p class="text-xs text-blue-500 font-medium">Verified Client</p>
+              </div>
+              <div class="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center font-bold shadow-md cursor-pointer">
+                  <i class="fa-solid fa-building-user"></i>
+              </div>
+          </div>
+      </header>
+
+      <div id="app-content" class="flex-1 overflow-y-auto p-8 fade-in"></div>
+      
+      <button onclick="window.toggleChat()" class="fixed bottom-8 right-8 w-14 h-14 bg-gray-900 text-white rounded-full shadow-[0_10px_25px_rgba(31,41,55,0.5)] flex items-center justify-center text-2xl hover:scale-110 transition-transform z-50 group">
+          <i class="fa-solid fa-comment-dots"></i>
+          <span class="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">3</span>
+      </button>
+
+      
+      <button onclick="window.toggleChat()" class="fixed bottom-8 right-8 w-14 h-14 bg-gray-900 text-white rounded-full shadow-[0_10px_25px_rgba(31,41,55,0.5)] flex items-center justify-center text-2xl hover:scale-110 transition-transform z-50 group">
+          <i class="fa-solid fa-comment-dots"></i>
+          <span class="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">3</span>
+      </button>
+
+  </main>
+
+
+
+    
+    
+
     <script type="module">
-        async function init() {
-            const area = document.getElementById('auth-area');
+        import { checkSession, logout } from "/assets/js/session_manager.js";
+        import { loadModule } from "/assets/js/ui.js";
+        
+        // Daftarkan ke Global agar bisa dipanggil dari onclick HTML
+        window.loadModule = loadModule;
+        window.logout = logout;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const loader = document.getElementById('global-loader');
+            const overlay = document.getElementById('auth-overlay');
+            const errorMsg = document.getElementById('auth-error-msg');
+
             try {
-                const { checkSession } = await import("./assets/js/session_manager.js");
-                const { default: config } = await import("./assets/js/config.js");
-
-                const err = sessionStorage.getItem('auth_error');
-                if(err) {
-                    document.getElementById('error-msg').textContent = err;
-                    document.getElementById('error-msg').classList.remove('hidden');
-                    sessionStorage.removeItem('auth_error');
-                }
-
+                // Diam-diam mengecek sesi ke Backend
                 const user = await checkSession();
-                
-                if (user) {
-                    if(user.role === 'client') {
-                        area.innerHTML = `
-                            <div class="bg-green-50 text-green-700 p-3 rounded-xl mb-4 text-sm font-bold border border-green-200"><i class="fa-solid fa-circle-check"></i> Sesi Ditemukan!</div>
-                            <button onclick="window.location.href='/dashboard.html'" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-black transition-all active:scale-95">Masuk ke Dashboard <i class="fa-solid fa-arrow-right ml-2"></i></button>
-                            <button onclick="import('./assets/js/session_manager.js').then(m=>m.logout())" class="w-full mt-3 text-xs font-bold text-gray-400 hover:text-red-500">Bukan Anda? Logout</button>
-                        `;
-                    } else {
-                        area.innerHTML = `
-                            <div class="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm font-bold border border-red-200">Akses Ditolak. Anda login sebagai ${user.role.toUpperCase()}.</div>
-                            <button onclick="import('./assets/js/session_manager.js').then(m=>m.logout())" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-black">Logout & Ganti Akun</button>
-                        `;
-                    }
+
+                if (!user) {
+                    // Sesi kosong: Buka gembok popup
+                    loader.classList.add('opacity-0', 'pointer-events-none');
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
+                } else if (user.role.toLowerCase() !== 'client') {
+                    // Salah role (Aktor masuk ke portal klien)
+                    loader.classList.add('opacity-0', 'pointer-events-none');
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
+                    errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Ditolak. Anda login sebagai ${user.role.toUpperCase()}.`;
+                    errorMsg.classList.remove('hidden');
                 } else {
-                    area.innerHTML = `
-                        <button onclick="window.location.href='${config.SSO_URL}/?redirect=client'" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-black transition-all active:scale-95">Masuk Sebagai Client</button>
-                    `;
+                    // BERHASIL LOGIN!
+                    // 1. Hilangkan Loader
+                    loader.classList.add('opacity-0', 'pointer-events-none');
+                    setTimeout(() => loader.classList.add('hidden'), 500);
+                    
+                    // 2. Auto-Load Dashboard (Modul Pertama)
+                    const content = document.getElementById('main-content');
+                    if(content && content.innerHTML.trim() === '') {
+                        loadModule('dashboard', document.querySelector('aside a.nav-item')); 
+                    }
+
+                    // 3. Pasang Event Listener untuk Menu Mobile & Profil Dropdown
+                    const btnMenu = document.getElementById('mobile-menu-button') || document.querySelector('.fa-bars')?.parentElement;
+                    const sidebar = document.querySelector('aside');
+                    const btnProfile = document.getElementById('profileBtn') || document.getElementById('profile-menu-button');
+                    const profileDropdown = document.getElementById('profileDropdown') || document.getElementById('profile-dropdown');
+
+                    if(btnMenu && sidebar) {
+                        btnMenu.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            sidebar.classList.toggle('-translate-x-full');
+                        });
+                    }
+                    if(btnProfile && profileDropdown) {
+                        btnProfile.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            profileDropdown.classList.toggle('hidden');
+                        });
+                    }
+                    // Klik di luar layar untuk menutup menu
+                    document.addEventListener('click', () => {
+                        if(sidebar && !sidebar.classList.contains('-translate-x-full')) sidebar.classList.add('-translate-x-full');
+                        if(profileDropdown && !profileDropdown.classList.contains('hidden')) profileDropdown.classList.add('hidden');
+                    });
                 }
-            } catch (error) {
-                area.innerHTML = `
-                    <div class="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-bold border border-red-200 mb-4 text-left">
-                        <i class="fa-solid fa-triangle-exclamation mb-1 text-lg"></i><br>Gagal memuat sistem.<br><span class="text-gray-500 font-normal">${error.message}</span>
-                    </div>
-                    <button onclick="window.location.reload()" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-black">Coba Lagi</button>
-                `;
+            } catch (e) {
+                console.error("Critical Init Error:", e);
+                loader.classList.add('opacity-0');
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                errorMsg.textContent = "Gagal terhubung ke server keamanan.";
+                errorMsg.classList.remove('hidden');
             }
-        }
-        init();
+        });
     </script>
+    
 </body>
+
 </html>
+
