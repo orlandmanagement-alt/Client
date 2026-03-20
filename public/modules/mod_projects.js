@@ -1,227 +1,350 @@
-import { apiGet, apiPost } from "/assets/js/api.js";
+
+    <div id="review-modal" class="fixed inset-0 z-[99999] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="document.getElementById('review-modal').classList.add('hidden')"></div>
+        <div class="bg-white rounded-3xl w-[95%] max-w-sm p-6 flex flex-col relative z-10 shadow-2xl text-center">
+            <div class="w-16 h-16 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-star"></i></div>
+            <h3 class="text-xl font-black text-gray-800 mb-1">Nilai Kinerja Talent</h3>
+            <p class="text-xs text-gray-500 mb-6">Ulasan Anda akan mempengaruhi Skor Kredibilitas <span id="rev_talent_name" class="font-bold text-gray-800">Talent</span>.</p>
+            
+            <div class="flex justify-center gap-2 mb-6" id="star-rating-container">
+                <button class="star-btn text-3xl text-gray-200 hover:text-yellow-400 transition-colors" data-val="1"><i class="fa-solid fa-star"></i></button>
+                <button class="star-btn text-3xl text-gray-200 hover:text-yellow-400 transition-colors" data-val="2"><i class="fa-solid fa-star"></i></button>
+                <button class="star-btn text-3xl text-gray-200 hover:text-yellow-400 transition-colors" data-val="3"><i class="fa-solid fa-star"></i></button>
+                <button class="star-btn text-3xl text-gray-200 hover:text-yellow-400 transition-colors" data-val="4"><i class="fa-solid fa-star"></i></button>
+                <button class="star-btn text-3xl text-gray-200 hover:text-yellow-400 transition-colors" data-val="5"><i class="fa-solid fa-star"></i></button>
+            </div>
+            
+            <input type="hidden" id="rev_val" value="0">
+            <input type="hidden" id="rev_talent_id">
+            <input type="hidden" id="rev_project_id">
+            
+            <textarea id="rev_comment" rows="3" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs outline-none focus:border-yellow-400 mb-4" placeholder="Berikan komentar singkat (Punctual, Akting bagus, dll)..."></textarea>
+            
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('review-modal').classList.add('hidden')" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl hover:bg-gray-200">Batal</button>
+                <button onclick="window.ClientProjects.submitReview()" class="flex-1 bg-gray-900 text-white font-black py-3 rounded-xl hover:bg-black shadow-lg">Kirim Ulasan</button>
+            </div>
+        </div>
+    </div>
+
+        
+        <div id="view-pipeline" class="hidden fade-in">
+            <div class="bg-gray-50 p-4 md:p-6 rounded-2xl border border-gray-200 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Pipeline Pelamar</p>
+                    <h3 id="pipe-title" class="font-black text-gray-800 text-lg md:text-xl leading-tight">Judul Proyek</h3>
+                </div>
+                
+                <div class="flex gap-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 items-center">
+                    <select id="pipe-role-filter" onchange="window.ClientProjects.renderPipeline('all')" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-bold rounded-lg px-3 py-2 outline-none cursor-pointer">
+                        <option value="all">Semua Peran</option>
+                    </select>
+                    <div class="w-px h-6 bg-gray-200 mx-1"></div>
+                    <button class="pipe-filter active whitespace-nowrap px-4 py-2 bg-gray-900 text-white rounded-lg text-xs font-bold shadow" data-status="all">Semua</button>
+                    <button class="pipe-filter whitespace-nowrap px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50" data-status="applied">Menunggu</button>
+                    <button class="pipe-filter whitespace-nowrap px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50" data-status="approved">Diterima</button>
+                </div>
+
+            </div>
+
+            <div id="pipeline-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                </div>
+        </div>
+
+        import { apiGet, apiPost } from "/assets/js/api.js";
 import { notify } from "/assets/js/notify.js";
 
-// =========================================================
-// TEMPLATE RENDER (3 Tabs: Proyek Saya, Buat Proyek, Pelamar)
-// =========================================================
 export async function render() {
   return `
-    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 max-w-5xl mx-auto min-h-[75vh]">
-        
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-briefcase text-blue-600 mr-2"></i> Kelola Proyek</h2>
-                <p class="text-sm text-gray-500 mt-1">Publikasikan proyek baru dan tinjau lamaran dari talent.</p>
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 min-h-[80vh]">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-briefcase text-gray-900 mr-2"></i> Manajemen Proyek</h2>
+            <button onclick="window.ClientProjects.toggleView('create')" id="btn-create-view" class="bg-gray-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-black transition-colors"><i class="fa-solid fa-plus mr-1"></i> Buat Proyek</button>
+        </div>
+
+        <div id="view-list" class="fade-in">
+            <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="col-span-full py-10 text-center"><i class="fa-solid fa-spinner fa-spin text-gray-400 text-3xl"></i></div>
             </div>
         </div>
 
-        <div class="flex gap-6 border-b border-gray-100 mb-6 overflow-x-auto no-scrollbar">
-            <button id="tab-list" class="pb-3 text-sm font-bold text-gray-800 border-b-2 border-gray-800 whitespace-nowrap">Proyek Aktif</button>
-            <button id="tab-create" class="pb-3 text-sm font-bold text-gray-400 hover:text-gray-600 border-b-2 border-transparent whitespace-nowrap transition-colors">Buat Lowongan Baru</button>
-            <button id="tab-pipeline" class="pb-3 text-sm font-bold text-gray-400 hover:text-gray-600 border-b-2 border-transparent whitespace-nowrap transition-colors">Review Pelamar</button>
-        </div>
+        <div id="view-create" class="hidden fade-in max-w-4xl mx-auto">
+            <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200 mb-6">
+                <h3 class="font-black text-gray-800 mb-4 text-lg border-b border-gray-200 pb-2">1. Detail Utama Proyek</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Judul Proyek / Event <span class="text-red-500">*</span></label>
+                        <input type="text" id="p_title" class="w-full border border-gray-300 rounded-xl p-3 focus:border-gray-800 outline-none text-sm bg-white" placeholder="Cth: Iklan TVC Minuman Ringan">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Lokasi Utama Syuting</label>
+                        <input type="text" id="p_loc" class="w-full border border-gray-300 rounded-xl p-3 focus:border-gray-800 outline-none text-sm bg-white" placeholder="Cth: Jakarta Selatan">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tanggal Pelaksanaan</label>
+                        <input type="text" id="p_date" class="w-full border border-gray-300 rounded-xl p-3 focus:border-gray-800 outline-none text-sm bg-white" placeholder="Cth: 12-15 Agustus 2026">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Sinopsis / Deskripsi Proyek <span class="text-red-500">*</span></label>
+                        <textarea id="p_desc" rows="3" class="w-full border border-gray-300 rounded-xl p-3 focus:border-gray-800 outline-none text-sm bg-white resize-y" placeholder="Ceritakan singkat tentang proyek ini..."></textarea>
+                    </div>
+                </div>
+            </div>
 
-        <div id="projects-content" class="fade-in">
-            <div class="flex justify-center py-10"><i class="fa-solid fa-spinner fa-spin text-3xl text-gray-400"></i></div>
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-black text-gray-800 text-lg">2. Kebutuhan Talent (Roles)</h3>
+                    <button type="button" onclick="window.ClientProjects.addRole()" class="bg-blue-50 text-blue-600 border border-blue-200 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors"><i class="fa-solid fa-user-plus mr-1"></i> Tambah Karakter</button>
+                </div>
+                <p class="text-xs text-gray-500 mb-4">Buat spesifikasi karakter agar mesin Job Match kami mencarikan kandidat yang tepat.</p>
+                
+                <div id="roles-container" class="space-y-4">
+                    </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-6 border-t border-gray-100">
+                <button onclick="window.ClientProjects.toggleView('list')" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-200">Batal</button>
+                <button onclick="window.ClientProjects.submitProject()" class="bg-gray-900 text-white px-8 py-3 rounded-xl font-black shadow-lg hover:bg-black text-lg"><i class="fa-solid fa-paper-plane mr-2"></i> Publish Proyek</button>
+            </div>
         </div>
-        
     </div>
   `;
 }
 
-// =========================================================
-// LOGIC & EVENTS
-// =========================================================
 export async function initEvents() {
-    const tabList = document.getElementById("tab-list");
-    const tabCreate = document.getElementById("tab-create");
-    const tabPipeline = document.getElementById("tab-pipeline");
-    const content = document.getElementById("projects-content");
+    let masterProfessions = [];
+    let rolesArray = []; // Array untuk menampung data role
 
-    function setTabActive(activeTab) {
-        [tabList, tabCreate, tabPipeline].forEach(t => t.className = "pb-3 text-sm font-bold text-gray-400 hover:text-gray-600 border-b-2 border-transparent whitespace-nowrap transition-colors");
-        activeTab.className = "pb-3 text-sm font-bold text-gray-800 border-b-2 border-gray-800 whitespace-nowrap";
-    }
-
-    // --- TAB 1: DAFTAR PROYEK ---
-    async function loadProjectList() {
-        setTabActive(tabList);
-        content.innerHTML = `<div class="flex justify-center py-10"><i class="fa-solid fa-spinner fa-spin text-3xl text-gray-400"></i></div>`;
-        const res = await apiGet("/functions/api/client/projects_list");
-        
-        if (!res.ok) { content.innerHTML = `<div class="bg-red-50 text-red-500 p-4 rounded-xl text-center">Gagal memuat proyek.</div>`; return; }
-        const items = res.data?.items || [];
-        if (!items.length) {
-            content.innerHTML = `<div class="text-center py-16 text-gray-400"><i class="fa-solid fa-folder-open text-6xl mb-4 text-gray-200"></i><p>Belum ada proyek yang Anda buat.</p></div>`; return;
+    // Ambil Master Data Profesi untuk dropdown Role
+    apiGet("/functions/api/public/master_data").then(res => {
+        if (res.ok && res.data && res.data.profession) {
+            masterProfessions = res.data.profession;
+            // Jika container role kosong, otomatis tambahkan 1 role default
+            if(rolesArray.length === 0) window.ClientProjects.addRole();
         }
+    });
 
-        content.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6">` + items.map(p => `
-            <div class="border border-gray-200 p-6 rounded-2xl bg-white hover:shadow-lg transition-shadow">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-bold text-lg text-gray-800">${p.title}</h3>
-                    <span class="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black rounded-full uppercase tracking-widest">${p.status}</span>
-                </div>
-                <div class="flex gap-2 mb-3 border-t border-gray-100 pt-3">
-                    <button onclick="window.ClientProjects.share('${p.id}')" class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-50 hover:text-blue-600 transition-colors"><i class="fa-solid fa-share-nodes"></i> Share WA</button>
-                </div>
-                <div class="text-xs text-gray-500 mb-3"><i class="fa-solid fa-location-dot w-4"></i> ${p.location || 'TBA'} &nbsp;|&nbsp; <i class="fa-regular fa-calendar w-4"></i> ${p.event_date || 'TBA'}</div>
-                <p class="text-sm text-gray-600 line-clamp-2">${p.description}</p>
-            </div>
-        `).join("") + `</div>`;
-    }
-
-    // --- TAB 2: BUAT PROYEK BARU ---
-    function loadCreateForm() {
-        setTabActive(tabCreate);
-        content.innerHTML = `
-            <form id="form-create-project" class="space-y-5 max-w-2xl">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Judul Proyek / Iklan <span class="text-red-500">*</span></label>
-                    <input type="text" id="cp_title" required placeholder="Cth: Dicari Aktor untuk Iklan TV" class="w-full border border-gray-300 rounded-xl p-3 focus:border-blue-500 outline-none text-sm">
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Lokasi Syuting/Event</label>
-                        <input type="text" id="cp_location" placeholder="Cth: Jakarta Selatan" class="w-full border border-gray-300 rounded-xl p-3 focus:border-blue-500 outline-none text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Tanggal Event</label>
-                        <input type="text" id="cp_date" placeholder="Cth: 15-20 Nov 2026" class="w-full border border-gray-300 rounded-xl p-3 focus:border-blue-500 outline-none text-sm">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Deskripsi Lengkap & Kebutuhan Talent</label>
-                    <textarea id="cp_desc" rows="5" placeholder="Jelaskan detail proyek, fee, dan kriteria talent yang dibutuhkan..." class="w-full border border-gray-300 rounded-xl p-3 focus:border-blue-500 outline-none text-sm resize-y"></textarea>
-                </div>
-                <button type="submit" class="bg-gray-800 text-white font-bold py-3 px-8 rounded-xl shadow-md hover:bg-gray-900 transition-colors">Publikasikan Lowongan</button>
-            </form>
-        `;
-
-        document.getElementById("form-create-project").onsubmit = async (e) => {
-            e.preventDefault();
-            notify("Menyimpan proyek...", "info");
-            const payload = {
-                title: document.getElementById('cp_title').value,
-                location: document.getElementById('cp_location').value,
-                event_date: document.getElementById('cp_date').value,
-                description: document.getElementById('cp_desc').value
-            };
-            const res = await apiPost("/functions/api/client/project_create", payload);
-            if(res.ok) { notify("Berhasil! Proyek Anda kini tayang.", "success"); loadProjectList(); } 
-            else { notify(res.data?.message || "Gagal membuat proyek", "error"); }
-        };
-    }
-
-    // --- TAB 3: REVIEW PELAMAR (Pipeline) ---
-    async function loadPipeline() {
-        setTabActive(tabPipeline);
-        content.innerHTML = `<div class="flex justify-center py-10"><i class="fa-solid fa-spinner fa-spin text-3xl text-gray-400"></i></div>`;
-        const res = await apiGet("/functions/api/client/applications");
-        
-        if (!res.ok) { content.innerHTML = `<div class="bg-red-50 text-red-500 p-4 rounded-xl text-center">Gagal memuat data pelamar.</div>`; return; }
-        const items = res.data?.items || [];
-        if (!items.length) {
-            content.innerHTML = `<div class="text-center py-16 text-gray-400"><i class="fa-solid fa-user-xmark text-6xl mb-4 text-gray-200"></i><p>Belum ada talent yang melamar.</p></div>`; return;
-        }
-
-        content.innerHTML = `<div class="space-y-4">` + items.map(a => {
-            let statusBadge = `<span class="px-3 py-1 bg-yellow-50 text-yellow-600 border border-yellow-200 text-xs font-bold rounded-full uppercase">Pending</span>`;
-            let actions = `
-                <button onclick="window.ClientProjects.updateStatus('${a.application_id}', 'approved')" class="bg-green-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors"><i class="fa-solid fa-check"></i> Terima</button>
-                <button onclick="window.ClientProjects.updateStatus('${a.application_id}', 'rejected')" class="bg-red-50 text-red-500 px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors">Tolak</button>
-            `;
-
-            if (a.application_status === 'approved') {
-                statusBadge = `<span class="px-3 py-1 bg-green-50 text-green-600 border border-green-200 text-xs font-bold rounded-full uppercase"><i class="fa-solid fa-check mr-1"></i> Diterima</span>`;
-                actions = `<a href="https://wa.me/${(a.talent_phone||'').replace(/[^0-9]/g, '')}" target="_blank" class="text-green-600 text-sm font-bold hover:underline"><i class="fa-brands fa-whatsapp"></i> Hubungi Talent</a>`;
-            } else if (a.application_status === 'rejected') {
-                statusBadge = `<span class="px-3 py-1 bg-red-50 text-red-600 border border-red-200 text-xs font-bold rounded-full uppercase">Ditolak</span>`;
-                actions = ``;
-            }
-
-            return `
-            <div class="border border-gray-200 p-5 rounded-2xl bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-gray-50 transition-colors">
-                <div>
-                    <div class="flex items-center gap-3 mb-1">
-                        <h4 class="font-bold text-gray-800 text-lg">${a.talent_name || 'Talent'}</h4>
-                        ${statusBadge}
-                    </div>
-                    <p class="text-sm text-gray-600 font-medium"><i class="fa-solid fa-briefcase w-5 text-gray-400"></i> Melamar di: <span class="text-gray-800">${a.project_title}</span></p>
-                    <p class="text-xs text-gray-400 mt-1">Diajukan pada: ${new Date(a.applied_at * 1000).toLocaleDateString('id-ID')}</p>
-                </div>
-                <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0 justify-end">
-                    <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-50"><i class="fa-solid fa-eye"></i> Lihat Profil</button>
-                    <button onclick="window.ClientProjects.openReviewModal('${a.application_id}', '${a.talent_name}')" class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-yellow-100 transition-colors"><i class="fa-solid fa-star"></i> Beri Ulasan</button>
-                    <button onclick="window.ClientProjects.issueCert('${a.application_id}')" class="bg-purple-50 border border-purple-200 text-purple-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors"><i class="fa-solid fa-award"></i> Cetak Sertifikat</button>
-                    ${actions}
-                </div>
-            </div>
-            `;
-        }).join("") + `</div>`;
-    }
-
-    // --- GLOBAL METHOD: UPDATE STATUS LAMARAN ---
-    window.ClientProjects = {
-        share: (projectId) => {
-            const url = `https://talent.orlandmanagement.com/project.html?id=${projectId}`;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(url);
-                notify("Link berhasil disalin! Silakan Paste di WhatsApp/IG.", "success");
-            } else {
-                prompt("Salin link ini untuk dibagikan:", url);
-            }
-        },
-        openReviewModal: (appId, talentName) => {
-            document.getElementById("rev_app_id").value = appId;
-            document.getElementById("rev_talent_name").textContent = talentName;
-            document.getElementById("rev_rating").value = "0";
-            document.getElementById("rev_text").value = "";
-            document.querySelectorAll("#star-container i").forEach(s => s.classList.replace("text-yellow-400", "text-gray-300"));
-            document.getElementById("review-modal").classList.remove("hidden");
-            
-            // Logic Bintang
-            document.querySelectorAll("#star-container i").forEach(star => {
-                star.onclick = function() {
-                    const val = parseInt(this.getAttribute("data-val"));
-                    document.getElementById("rev_rating").value = val;
-                    document.querySelectorAll("#star-container i").forEach(s => {
-                        if(parseInt(s.getAttribute("data-val")) <= val) s.classList.replace("text-gray-300", "text-yellow-400");
-                        else s.classList.replace("text-yellow-400", "text-gray-300");
-                    });
+    
+    
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.star-btn');
+        if(btn) {
+            const val = parseInt(btn.getAttribute('data-val'));
+            document.getElementById('rev_val').value = val;
+            document.querySelectorAll('.star-btn').forEach(b => {
+                if(parseInt(b.getAttribute('data-val')) <= val) {
+                    b.classList.replace('text-gray-200', 'text-yellow-400');
+                } else {
+                    b.classList.replace('text-yellow-400', 'text-gray-200');
                 }
             });
-        },
-        submitReview: async () => {
-            const appId = document.getElementById("rev_app_id").value;
-            const rating = document.getElementById("rev_rating").value;
-            const text = document.getElementById("rev_text").value;
-            if(rating === "0") return notify("Pilih minimal 1 bintang!", "error");
-            notify("Mengirim ulasan...", "info");
-            const res = await apiPost("/functions/api/client/review_submit", { application_id: appId, rating: parseInt(rating), review_text: text });
-            if(res.ok) { notify(res.message, "success"); document.getElementById("review-modal").classList.add("hidden"); }
-            else { notify(res.data?.message || "Gagal mengirim ulasan", "error"); }
-        },
-        issueCert: async (appId) => {
-            if(!confirm("Terbitkan sertifikat resmi untuk talent ini sebagai bukti kehadiran/partisipasi?")) return;
-            notify("Memproses sertifikat...", "info");
-            const res = await apiPost("/functions/api/client/certificate_issue", { application_id: appId });
-            if(res.ok) { notify(res.message, "success"); } 
-            else { notify(res.data?.message || "Gagal menerbitkan", "error"); }
-        },
-        updateStatus: async (appId, newStatus) => {
-            if(!confirm(`Yakin ingin mengubah status menjadi ${newStatus.toUpperCase()}?`)) return;
-            notify("Memproses...", "info");
-            const res = await apiPost("/functions/api/client/application_update", { application_id: appId, status: newStatus });
-            if(res.ok) { notify(res.message, "success"); loadPipeline(); } 
-            else { notify(res.data?.message || "Gagal memproses", "error"); }
         }
+    });
+
+    // Binding filter buttons pipeline
+    document.addEventListener('click', (e) => {
+        if(e.target.classList.contains('pipe-filter')) {
+            document.querySelectorAll('.pipe-filter').forEach(b => {
+                b.className = "pipe-filter whitespace-nowrap px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50";
+            });
+            e.target.className = "pipe-filter active whitespace-nowrap px-4 py-2 bg-gray-900 text-white rounded-lg text-xs font-bold shadow";
+            window.ClientProjects.renderPipeline(e.target.getAttribute('data-status'));
+        }
+    });
+
+    const renderRoles = () => {
+        const container = document.getElementById("roles-container");
+        if (rolesArray.length === 0) {
+            container.innerHTML = `<div class="text-center p-6 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 font-bold">Belum ada Kebutuhan Karakter. Klik "Tambah Karakter".</div>`;
+            return;
+        }
+
+        const profOptions = masterProfessions.map(p => `<option value="${p}">${p}</option>`).join("");
+
+        container.innerHTML = rolesArray.map((r, idx) => `
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm relative">
+                <div class="absolute top-4 right-4 flex gap-2">
+                    <span class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[10px] font-black">ROLE #${idx+1}</span>
+                    ${rolesArray.length > 1 ? `<button onclick="window.ClientProjects.removeRole(${idx})" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button>` : ''}
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                    <div class="md:col-span-3">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nama Karakter / Posisi</label>
+                        <input type="text" class="role-input w-full border-b-2 border-gray-200 py-2 outline-none focus:border-gray-800 font-bold text-gray-800" data-idx="${idx}" data-field="role_name" value="${r.role_name}" placeholder="Cth: Pemeran Utama Pria / SPG Event">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kategori / Profesi</label>
+                        <select class="role-input w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs outline-none" data-idx="${idx}" data-field="category">
+                            <option value="">Semua Kategori</option>
+                            ${profOptions}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Gender</label>
+                        <select class="role-input w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs outline-none" data-idx="${idx}" data-field="gender">
+                            <option value="Semua" ${r.gender==='Semua'?'selected':''}>Bebas / Semua</option>
+                            <option value="Laki-Laki" ${r.gender==='Laki-Laki'?'selected':''}>Laki-Laki</option>
+                            <option value="Perempuan" ${r.gender==='Perempuan'?'selected':''}>Perempuan</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Lokasi Spesifik</label>
+                        <input type="text" class="role-input w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs outline-none" data-idx="${idx}" data-field="location" value="${r.location}" placeholder="Kota...">
+                    </div>
+
+                    <div class="md:col-span-1">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Range Usia (Thn)</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" class="role-input w-1/2 bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs text-center" data-idx="${idx}" data-field="age_min" value="${r.age_min}" placeholder="Min">
+                            <span class="text-gray-300">-</span>
+                            <input type="number" class="role-input w-1/2 bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs text-center" data-idx="${idx}" data-field="age_max" value="${r.age_max}" placeholder="Max">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-1">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Range Tinggi (Cm)</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" class="role-input w-1/2 bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs text-center" data-idx="${idx}" data-field="height_min" value="${r.height_min}" placeholder="Min">
+                            <span class="text-gray-300">-</span>
+                            <input type="number" class="role-input w-1/2 bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs text-center" data-idx="${idx}" data-field="height_max" value="${r.height_max}" placeholder="Max">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-3">
+                        <input type="text" class="role-input w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs outline-none" data-idx="${idx}" data-field="description" value="${r.description}" placeholder="Catatan tambahan (Cth: Harus bisa bahasa Inggris / Punya SIM A)...">
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+        // Set values for selects back after render
+        document.querySelectorAll('.role-input[data-field="category"]').forEach(el => {
+            const idx = el.getAttribute('data-idx');
+            el.value = rolesArray[idx].category;
+        });
+
+        // Re-bind listeners to update array on type
+        document.querySelectorAll('.role-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const idx = e.target.getAttribute('data-idx');
+                const field = e.target.getAttribute('data-field');
+                rolesArray[idx][field] = e.target.value;
+            });
+            // Also listen to keyup for text inputs
+            if(input.type === 'text' || input.type === 'number') {
+                input.addEventListener('keyup', (e) => {
+                    const idx = e.target.getAttribute('data-idx');
+                    const field = e.target.getAttribute('data-field');
+                    rolesArray[idx][field] = e.target.value;
+                });
+            }
+        });
     };
 
-    // --- BINDING EVENT TABS ---
-    tabList.addEventListener("click", loadProjectList);
-    tabCreate.addEventListener("click", loadCreateForm);
-    tabPipeline.addEventListener("click", loadPipeline);
+    window.ClientProjects = {
+        
+        viewPipeline: async (projectId) => {
+            const list = document.getElementById("view-list");
+            const create = document.getElementById("view-create");
+            const pipe = document.getElementById("view-pipeline");
+            const btn = document.getElementById("btn-create-view");
+            
+            list.classList.add("hidden"); create.classList.add("hidden"); pipe.classList.remove("hidden");
+            btn.innerHTML = `<i class="fa-solid fa-arrow-left mr-1"></i> Kembali`;
+            btn.onclick = () => { pipe.classList.add("hidden"); list.classList.remove("hidden"); btn.innerHTML = `<i class="fa-solid fa-plus mr-1"></i> Buat Proyek`; btn.onclick = () => window.ClientProjects.toggleView('create'); };
+            
+            const container = document.getElementById("pipeline-container");
+            container.innerHTML = `<div class="col-span-full py-10 text-center"><i class="fa-solid fa-spinner fa-spin text-gray-400 text-3xl"></i></div>`;
+            
+            const res = await apiGet(`/functions/api/client/project_applicants?id=${projectId}`);
+            if(!res.ok) return container.innerHTML = `<div class="col-span-full text-red-500 font-bold text-center">Gagal memuat pelamar.</div>`;
+            
+            document.getElementById("pipe-title").textContent = res.data.project_title;
+            const applicants = res.data.applicants || [];
+            window._currentApplicants = applicants;
+            const roleSelect = document.getElementById("pipe-role-filter");
+            if(res.data.roles && res.data.roles.length > 0) {
+                roleSelect.innerHTML = '<option value="all">Semua Peran</option>' + res.data.roles.map(r => `<option value="${r.id}">${r.role_name}</option>`).join("");
+            } else {
+                roleSelect.innerHTML = '<option value="all">Umum / Tanpa Peran</option>';
+            }
+            
+            window.ClientProjects.renderPipeline('all');
+        },
+        renderPipeline: (statusFilter) => {
+            const container = document.getElementById("pipeline-container");
+            let filtered = window._currentApplicants || [];
+            
+            const activeRole = document.getElementById("pipe-role-filter").value;
+            if(statusFilter === 'all') {
+                // Cari tombol yang aktif saat ini jika dipanggil dari onchange select
+                const activeBtn = document.querySelector('.pipe-filter.active');
+                if(activeBtn) statusFilter = activeBtn.getAttribute('data-status');
+            }
+            if(statusFilter !== 'all') filtered = filtered.filter(a => a.app_status === statusFilter);
+            if(activeRole !== 'all') filtered = filtered.filter(a => a.role_id === activeRole);
 
-    // Initial Load
-    loadProjectList();
+            
+            if(filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-10 border-2 border-dashed rounded-2xl text-gray-400 font-bold">Belum ada pelamar di kategori ini.</div>`;
+                return;
+            }
+            
+            container.innerHTML = filtered.map(a => {
+                let photoUrl = "";
+                try { const p = JSON.parse(a.photos); photoUrl = p.headshot || p.full || ""; } catch(e) {}
+                const avatar = photoUrl ? `<div class="w-16 h-16 rounded-xl bg-cover bg-center shadow-sm flex-shrink-0" style="background-image: url('${photoUrl}')"></div>` : `<div class="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-2xl flex-shrink-0"><i class="fa-solid fa-user"></i></div>`;
+                
+                let statusBadge = `<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-[9px] font-black uppercase tracking-wider border border-yellow-200">Menunggu Review</span>`;
+                if(a.app_status === 'approved') statusBadge = `<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[9px] font-black uppercase tracking-wider border border-green-200">Diterima</span>`;
+                if(a.app_status === 'rejected') statusBadge = `<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-[9px] font-black uppercase tracking-wider border border-red-200">Ditolak</span>`;
+                if(a.app_status === 'invited') statusBadge = `<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-[9px] font-black uppercase tracking-wider border border-blue-200">Diundang</span>`;
+
+                
+                let actionBtns = `
+                    <button onclick="window.ClientProjects.updateStatus('${a.application_id}', 'approved')" class="flex-1 bg-gray-900 text-white py-2.5 rounded-xl text-xs font-bold shadow hover:bg-black active:scale-95 transition-transform">Terima</button>
+                    <button onclick="window.ClientProjects.updateStatus('${a.application_id}', 'rejected')" class="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl text-xs font-bold hover:bg-red-50 hover:text-red-600 transition-colors">Tolak</button>
+                `;
+                if(a.app_status === 'approved') {
+                    actionBtns = `<button onclick="window.ClientProjects.openReviewModal('${a.talent_id}', '${a.full_name}', '${a.project_id}')" class="w-full bg-yellow-400 text-gray-900 py-2.5 rounded-xl text-xs font-black shadow hover:bg-yellow-500 active:scale-95 transition-all"><i class="fa-solid fa-star"></i> Beri Ulasan & Rating</button>`;
+                } else if(a.app_status !== 'applied') {
+                    actionBtns = `<button class="w-full bg-gray-100 text-gray-400 py-2.5 rounded-xl text-xs font-bold cursor-not-allowed border border-gray-200">Telah Diproses</button>`;
+                }
+
+
+                
+                return `
+                <div class="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col gap-4 shadow-sm hover:shadow-lg transition-all relative overflow-hidden group">
+                    ${a.profile_progress >= 80 ? '<div class="absolute -right-6 top-2 bg-yellow-400 text-black text-[8px] font-black py-1 px-8 rotate-45 shadow-sm">PROFIL LENGKAP</div>' : ''}
+                    <div class="flex items-start gap-4">
+                        ${avatar}
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-1.5 gap-2">
+                                ${statusBadge}
+                                ${a.video_link ? `<a href="${a.video_link}" target="_blank" class="flex-shrink-0 w-7 h-7 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xs hover:bg-red-200 transition-colors" title="Tonton Video Audisi"><i class="fa-solid fa-video"></i></a>` : ''}
+                            </div>
+                            <h4 class="font-black text-gray-800 text-base leading-tight truncate">${a.full_name}</h4>
+                            
+                            ${a.role_name ? `<span class="inline-block mt-1.5 px-2 py-0.5 bg-gray-100 border border-gray-200 text-gray-600 rounded text-[9px] font-bold uppercase truncate w-full"><i class="fa-solid fa-masks-theater"></i> Peran: ${a.role_name}</span>` : ''}
+                            <p class="text-xs text-gray-500 mt-1.5"><i class="fa-solid fa-location-dot"></i> ${a.city || '-'} &nbsp;|&nbsp; ${a.gender || '-'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 mt-auto pt-3 border-t border-gray-100">
+                        <button onclick="window.ClientSearch.openModal('${a.talent_id}')" class="w-12 bg-white border-2 border-gray-200 text-gray-600 py-2 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm"><i class="fa-solid fa-eye"></i></button>
+                        ${actionBtns}
+                    </div>
+                </div>
+                `;
+
+        } else {
+            container.innerHTML = `<div class="col-span-full text-red-500 font-bold text-center">Gagal memuat proyek.</div>`;
+        }
+    }
+
+    loadList();
 }

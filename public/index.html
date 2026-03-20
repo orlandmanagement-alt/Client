@@ -1,40 +1,64 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Client Portal - Orland Management</title>
-  <style>
-      body { font-family: sans-serif; background-color: #f3f4f6; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
-      .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
-      .btn { background: #1f2937; color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 20px;}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Hub - Orland Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>tailwind.config = { theme: { extend: { colors: { accent: '#1f2937' }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }</script>
 </head>
-<body>
-<div id="app" class="card">
-  <h2>Memeriksa Akses Perusahaan...</h2>
-  <p style="color:gray;">Menghubungkan ke Orland SSO</p>
-</div>
-<script type="module">
-import { checkSession } from "/assets/js/auth.js";
-import config from "/assets/js/config.js";
-async function init() {
-  const user = await checkSession();
-  if (user) {
-    if (user.role !== config.APP && user.role !== 'admin') {
-         window.location.href = user.role === 'talent' ? 'https://talent.orlandmanagement.com' : config.SSO_URL;
-         return;
-    }
-    window.location.href = "/dashboard.html";
-  } else {
-    document.getElementById("app").innerHTML = `
-      <h1 style="text-transform: uppercase; color:#1f2937;">CLIENT HUB</h1>
-      <p style="color:gray;">Rekrut Talent Terbaik untuk Proyek Anda</p>
-      <button class="btn" onclick="window.location.href='${config.SSO_URL}'">Masuk Sebagai Client</button>
-    `;
-  }
-}
-init();
-</script>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full text-center border border-gray-100">
+        <div class="w-20 h-20 bg-gray-100 text-gray-800 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6">
+            <i class="fa-solid fa-briefcase"></i>
+        </div>
+        <h1 class="text-2xl font-black text-gray-800 tracking-tight mb-2">CLIENT HUB</h1>
+        <p class="text-sm text-gray-500 mb-8">Rekrut Talent & Model Terbaik untuk Proyek Perusahaan Anda.</p>
+        
+        <div id="auth-area">
+            <div class="py-4"><i class="fa-solid fa-spinner fa-spin text-3xl text-gray-400"></i><p class="text-xs text-gray-400 mt-3 font-bold uppercase tracking-widest">Memeriksa Kredensial...</p></div>
+        </div>
+        
+        <p id="error-msg" class="text-xs text-red-500 font-bold mt-4 hidden"></p>
+    </div>
+
+    <script type="module">
+        import { checkSession } from "./assets/js/auth.js";
+        import config from "./config.js";
+
+        async function init() {
+            const err = sessionStorage.getItem('auth_error');
+            if(err) {
+                document.getElementById('error-msg').textContent = err;
+                document.getElementById('error-msg').classList.remove('hidden');
+                sessionStorage.removeItem('auth_error');
+            }
+
+            const user = await checkSession();
+            const area = document.getElementById('auth-area');
+            
+            if (user) {
+                if(user.role === 'client') {
+                    area.innerHTML = `
+                        <div class="bg-green-50 text-green-700 p-3 rounded-xl mb-4 text-sm font-bold border border-green-200"><i class="fa-solid fa-circle-check"></i> Sesi Ditemukan!</div>
+                        <button onclick="window.location.href='/dashboard.html'" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-black transition-all active:scale-95">Masuk ke Dashboard <i class="fa-solid fa-arrow-right ml-2"></i></button>
+                        <button onclick="import('./assets/js/auth.js').then(m=>m.logout())" class="w-full mt-3 text-xs font-bold text-gray-400 hover:text-red-500">Bukan Anda? Logout</button>
+                    `;
+                } else {
+                    area.innerHTML = `
+                        <div class="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm font-bold border border-red-200">Akses Ditolak. Anda login sebagai ${user.role.toUpperCase()}.</div>
+                        <button onclick="import('./assets/js/auth.js').then(m=>m.logout())" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-black">Logout & Ganti Akun</button>
+                    `;
+                }
+            } else {
+                area.innerHTML = `
+                    <button onclick="window.location.href='${config.SSO_URL}/?redirect=client'" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-black transition-all active:scale-95">Masuk Sebagai Client</button>
+                `;
+            }
+        }
+        init();
+    </script>
 </body>
 </html>

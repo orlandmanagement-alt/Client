@@ -1,30 +1,27 @@
 import config from "./config.js";
-import { state } from "./state.js"; 
 
 export async function checkSession() {
     try {
-        const res = await fetch(`${config.SSO_URL}/api/auth/me`, { credentials: "include" });
+        const res = await fetch(`${config.API_BASE}/functions/api/auth/me`, { 
+            method: 'GET', credentials: 'include', headers: { 'Accept': 'application/json' }
+        });
         if (!res.ok) return null;
         const data = await res.json();
         return data.user || null;
     } catch (e) { return null; }
 }
 
-export function redirectToSSO() { window.location.href = config.SSO_URL; }
-
-export async function requireAuth(expectedRole = null) {
+export async function requireAuth(expectedRole = 'client') {
     const user = await checkSession();
-    if (!user) { redirectToSSO(); return false; }
-    
-    if (expectedRole && user.role !== expectedRole && user.role !== 'admin') {
-        window.location.href = user.role === 'talent' ? 'https://talent.orlandmanagement.com' : 'https://sso.orlandmanagement.com';
-        return false;
+    if (!user || user.role !== expectedRole) {
+        sessionStorage.setItem('auth_error', 'Sesi Anda telah habis atau akses ditolak.');
+        window.location.href = '/index.html'; 
+        return null;
     }
-    if (state) state.user = user; 
     return user;
 }
 
 export async function logout() {
-    await fetch(`${config.SSO_URL}/api/auth/logout`, { method: 'POST', credentials: 'include' });
-    redirectToSSO();
+    try { await fetch(`${config.SSO_URL}/api/auth/logout`, { method: 'POST', credentials: 'include' }); } catch(e) {}
+    window.location.href = '/index.html';
 }

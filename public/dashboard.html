@@ -130,5 +130,85 @@ async function init() {
 }
 init();
 </script>
+
+    <script type="module">
+        import { apiGet, apiPost } from "/assets/js/api.js";
+        window.GlobalNotif = {
+            fetch: async () => {
+                const res = await apiGet("/functions/api/notifications");
+                if(res.ok && res.data) {
+                    const badge = document.getElementById("notif-badge");
+                    if(res.data.unread_count > 0) badge.classList.remove("hidden");
+                    else badge.classList.add("hidden");
+
+                    const list = document.getElementById("notif-list");
+                    if(res.data.items.length === 0) {
+                        list.innerHTML = '<div class="text-center py-8 text-gray-400 text-xs font-bold">Belum ada notifikasi.</div>';
+                        return;
+                    }
+                    list.innerHTML = res.data.items.map(n => `
+                        <div class="p-3 rounded-xl ${n.is_read ? 'bg-white opacity-60' : 'bg-blue-50/50 border border-blue-100'} mb-1 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <h4 class="text-xs font-black text-gray-800 mb-0.5">${n.title}</h4>
+                            <p class="text-[10px] text-gray-500 leading-tight">${n.message}</p>
+                            <p class="text-[8px] text-gray-400 mt-1 uppercase font-bold">${new Date(n.created_at * 1000).toLocaleDateString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})}</p>
+                        </div>
+                    `).join("");
+                }
+            },
+            markRead: async () => {
+                await apiPost("/functions/api/notifications");
+                document.getElementById("notif-badge").classList.add("hidden");
+                window.GlobalNotif.fetch();
+            }
+        };
+        // Auto-check notif saat web dimuat
+        setTimeout(() => window.GlobalNotif.fetch(), 2000);
+        // Tutup panel jika klik di luar
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('notif-panel');
+            if(!e.target.closest('.relative.mr-4') && !panel.classList.contains('hidden')) {
+                panel.classList.add('hidden');
+            }
+        });
+    </script>
+    <script type="module">
+        import { apiGet, apiPost } from "/assets/js/api.js";
+        window.GlobalNotif = {
+            fetch: async () => {
+                const res = await apiGet("/functions/api/notifications");
+                if(res.ok && res.data) {
+                    const badge = document.getElementById("notif-badge");
+                    if(res.data.unread_count > 0) badge.classList.remove("hidden");
+                    else badge.classList.add("hidden");
+
+                    const list = document.getElementById("notif-list");
+                    if(res.data.items.length === 0) {
+                        list.innerHTML = '<div class="text-center py-8 text-gray-400 text-xs font-bold">Belum ada notifikasi.</div>';
+                        return;
+                    }
+                    list.innerHTML = res.data.items.map(n => 
+                        '<div class="p-3 rounded-xl ' + (n.is_read ? 'bg-white opacity-60' : 'bg-blue-50/50 border border-blue-100') + ' mb-1 hover:bg-gray-50 transition-colors cursor-pointer">' +
+                            '<h4 class="text-xs font-black text-gray-800 mb-0.5">' + n.title + '</h4>' +
+                            '<p class="text-[10px] text-gray-500 leading-tight">' + n.message + '</p>' +
+                            '<p class="text-[8px] text-gray-400 mt-1 uppercase font-bold">' + new Date(n.created_at * 1000).toLocaleDateString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) + '</p>' +
+                        '</div>'
+                    ).join("");
+                }
+            },
+            markRead: async () => {
+                await apiPost("/functions/api/notifications");
+                document.getElementById("notif-badge").classList.add("hidden");
+                window.GlobalNotif.fetch();
+            }
+        };
+        setTimeout(() => window.GlobalNotif.fetch(), 2000);
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('notif-panel');
+            if(!e.target.closest('.relative.mr-4') && !panel.classList.contains('hidden')) {
+                panel.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
+
 </html>

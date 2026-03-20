@@ -95,6 +95,17 @@ export async function render() {
 // LOGIC & DIRTY STATE CHECKER
 // =========================================================
 export async function initEvents() {
+    // FETCH MASTER DATA UNTUK INDUSTRI
+    apiGet("/functions/api/public/master_data").then(res => {
+        if(res.ok && res.data && res.data.industry) {
+            const indSelect = document.getElementById("inp_industry");
+            if(indSelect) {
+                indSelect.innerHTML = `<option value="">-- Pilih Industri --</option>` + res.data.industry.map(i => `<option value="${i}">${i}</option>`).join("");
+                indSelect.value = currentState.industry_type || "";
+            }
+        }
+    });
+
     let originalState = {};
     let currentState = {};
 
