@@ -1,70 +1,51 @@
-import { renderLayout } from "/assets/js/ui.js";
-import { apiGet } from "/assets/js/api.js";
-import { renderBarChart } from "/assets/js/chart.js";
-import { showLoading } from "/assets/js/loading.js";
-import mountNotifications from "/modules/mod_notifications.js";
-import initSessionManagement from "/modules/mod_session_management.js";
-
-function card(title, value){
+export async function render() {
   return `
-    <div style="flex:1;padding:16px;border:1px solid #ddd;border-radius:8px;background:#fff">
-      <div style="font-size:12px;color:#666">${title}</div>
-      <div style="font-size:22px;font-weight:bold">${value}</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md">
+        <div class="w-14 h-14 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-briefcase"></i></div>
+        <div><p class="text-sm text-gray-500 font-medium mb-1">Proyek Aktif</p><h4 class="text-2xl font-bold text-gray-800">2</h4></div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md">
+        <div class="w-14 h-14 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-users-viewfinder"></i></div>
+        <div><p class="text-sm text-gray-500 font-medium mb-1">Total Pelamar</p><h4 class="text-2xl font-bold text-gray-800">145</h4></div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md">
+        <div class="w-14 h-14 rounded-full bg-green-50 text-green-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-user-check"></i></div>
+        <div><p class="text-sm text-gray-500 font-medium mb-1">Talent Dipekerjakan</p><h4 class="text-2xl font-bold text-gray-800">12</h4></div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md">
+        <div class="w-14 h-14 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+        <div><p class="text-sm text-gray-500 font-medium mb-1">Total Pengeluaran</p><h4 class="text-2xl font-bold text-gray-800">Rp 0</h4></div>
+      </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <h3 class="text-lg font-bold mb-4 text-gray-800 border-b border-gray-100 pb-2">Lamaran Terbaru</h3>
+        <div class="flex flex-col items-center justify-center text-gray-400 py-10">
+            <i class="fa-solid fa-inbox text-5xl mb-3 text-gray-200"></i>
+            <p class="font-medium text-gray-500">Belum ada pelamar baru hari ini.</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
+            <h3 class="text-lg font-bold text-gray-800">Cari Talent (Rekomendasi)</h3>
+            <button class="text-xs font-bold text-blue-500 hover:underline">Lihat Semua</button>
+        </div>
+        <div class="flex flex-col items-center justify-center text-gray-400 py-10">
+            <i class="fa-solid fa-star text-5xl mb-3 text-gray-200"></i>
+            <p class="font-medium text-gray-500">Sistem AI sedang mencocokkan talent untuk proyek Anda.</p>
+        </div>
+      </div>
     </div>
   `;
 }
-
-export default async function(){
-  renderLayout("Client Dashboard", `
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
-      <div>
-        <div id="kpi" style="display:flex;gap:10px;margin-bottom:20px">Loading...</div>
-        <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px">
-          <h3 style="margin-top:0">Activity</h3>
-          <div id="chart"></div>
-        </div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:20px">
-        <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px">
-          <h3 style="margin-top:0">Notifications (<span id="notifCount">0</span>)</h3>
-          <div id="notifList">Loading...</div>
-        </div>
-
-        <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <h3 style="margin-top:0;margin-bottom:12px">Sessions</h3>
-            <button id="logoutAllBtn">Logout All</button>
-          </div>
-          <div id="sessionBox">Loading...</div>
-        </div>
-      </div>
-    </div>
-  `);
-
-  showLoading("kpi");
-
-  const res = await apiGet("/functions/api/dashboard_summary");
-  const el = document.getElementById("kpi");
-
-  if(!res.ok){
-    el.innerHTML = "Failed load KPI";
-  }else{
-    const d = res.data || {};
-    el.innerHTML = `
-      ${card("Projects", d.projects || 0)}
-      ${card("Applications", d.applications || 0)}
-      ${card("Bookings", d.bookings || 0)}
-      ${card("Earnings", "$" + (d.earnings || 0))}
-    `;
-
-    renderBarChart("chart", [
-      { label:"Projects", value:d.projects || 0 },
-      { label:"Applications", value:d.applications || 0 },
-      { label:"Bookings", value:d.bookings || 0 }
-    ]);
-  }
-
-  await mountNotifications();
-  await initSessionManagement();
+export async function initEvents() {
+  // Logic untuk fetch API stats client ditaruh di sini nantinya
 }

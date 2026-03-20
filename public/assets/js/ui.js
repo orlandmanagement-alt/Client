@@ -1,34 +1,49 @@
-import { navigate } from "./router.js";
-import { state } from "./state.js";
+// Komponen Card Statistik untuk Dashboard Client
+export function createCard(title, value, icon, color = "blue") {
+    return `
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 transition-transform hover:-translate-y-1 hover:shadow-md">
+        <div class="w-14 h-14 rounded-full bg-${color}-50 text-${color}-500 flex items-center justify-center text-2xl">
+            <i class="${icon}"></i>
+        </div>
+        <div>
+            <p class="text-sm text-gray-500 font-medium mb-1">${title}</p>
+            <h4 class="text-2xl font-bold text-gray-800">${value}</h4>
+        </div>
+    </div>`;
+}
 
-export function renderLayout(title, content){
-  const roles = state.user?.roles || [];
+// Komponen Pesan Peringatan
+export function createAlert(message, type = "info") {
+    const colors = { info: "blue", error: "red", success: "green", warning: "orange" };
+    const c = colors[type];
+    return `<div class="bg-${c}-50 text-${c}-600 p-4 rounded-xl border border-${c}-100 text-sm flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> ${message}</div>`;
+}
 
-  document.body.innerHTML = `
-    <div style="display:flex;font-family:sans-serif;background:#f5f6fa">
-      <aside style="width:220px;padding:20px;background:#111;color:#fff;min-height:100vh">
-        <h3>Orland Client</h3>
-        <div><a href="/" data-link style="color:#fff">Dashboard</a></div>
-        <div><a href="/projects" data-link style="color:#fff">Projects</a></div>
-        <div><a href="/pipeline" data-link style="color:#fff">Pipeline</a></div>
-        <div><a href="/bookings" data-link style="color:#fff">Bookings</a></div>
-        <div><a href="/invites" data-link style="color:#fff">Invites</a></div>
-        <div><a href="/applications" data-link style="color:#fff">Applications</a></div>
-        <div><a href="/roles" data-link style="color:#fff">Roles</a></div>
-        ${roles.includes("admin") ? '<div><a href="/admin" data-link style="color:#fff">Admin</a></div>' : ''}
-      </aside>
+// Komponen Badge Status
+export function createBadge(text, color = "gray") {
+    return `<span class="px-3 py-1 bg-${color}-50 text-${color}-600 rounded-full text-xs font-bold uppercase tracking-wider">${text}</span>`;
+}
 
-      <main style="flex:1;padding:20px">
-        <h2>${title}</h2>
-        ${content}
-      </main>
-    </div>
-  `;
+export function maskPhone(phone) {
+    if (!phone || phone.length < 6) return phone || "-";
+    return phone.slice(0, -5) + "****" + phone.slice(-1);
+}
 
-  document.querySelectorAll("[data-link]").forEach(el => {
-    el.onclick = (e) => {
-      e.preventDefault();
-      navigate(el.getAttribute("href"));
-    };
-  });
+export function maskEmail(email) {
+    if (!email || !email.includes('@')) return email || "-";
+    const [name, domain] = email.split('@');
+    if (name.length <= 4) return name[0] + "***@" + domain;
+    return name.slice(0, 3) + "*****" + name.slice(-1) + "@" + domain;
+}
+
+export function maskPhone(phone) {
+    if (!phone || phone.length < 6) return phone || "-";
+    return phone.slice(0, -5) + "****" + phone.slice(-1);
+}
+
+export function maskEmail(email) {
+    if (!email || !email.includes('@')) return email || "-";
+    const [name, domain] = email.split('@');
+    if (name.length <= 4) return name[0] + "***@" + domain;
+    return name.slice(0, 3) + "*****" + name.slice(-1) + "@" + domain;
 }

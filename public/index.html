@@ -1,47 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <meta charset="utf-8">
-  <title>Portal</title>
-  <link rel="stylesheet" href="/assets/css/base.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Portal - Orland Management</title>
+  <style>
+      body { font-family: sans-serif; background-color: #f3f4f6; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+      .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+      .btn { background: #1f2937; color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 20px;}
+  </style>
 </head>
 <body>
-
-<div id="app">
-  <div id="loading">Loading...</div>
+<div id="app" class="card">
+  <h2>Memeriksa Akses Perusahaan...</h2>
+  <p style="color:gray;">Menghubungkan ke Orland SSO</p>
 </div>
-
 <script type="module">
-import { checkSession, redirectToSSO, redirectToRegister } from "/assets/js/auth_guard.js";
-
-const portal = location.hostname.includes("client") ? "client" : "talent";
-
+import { checkSession } from "/assets/js/auth.js";
+import config from "/assets/js/config.js";
 async function init() {
   const user = await checkSession();
-
   if (user) {
-    // ✅ sudah login → masuk dashboard SPA
+    if (user.role !== config.APP && user.role !== 'admin') {
+         window.location.href = user.role === 'talent' ? 'https://talent.orlandmanagement.com' : config.SSO_URL;
+         return;
+    }
     window.location.href = "/dashboard.html";
-    return;
+  } else {
+    document.getElementById("app").innerHTML = `
+      <h1 style="text-transform: uppercase; color:#1f2937;">CLIENT HUB</h1>
+      <p style="color:gray;">Rekrut Talent Terbaik untuk Proyek Anda</p>
+      <button class="btn" onclick="window.location.href='${config.SSO_URL}'">Masuk Sebagai Client</button>
+    `;
   }
-
-  // ❌ belum login → tampil landing
-  document.getElementById("app").innerHTML = `
-    <div style="text-align:center;margin-top:100px">
-      <h1>${portal.toUpperCase()} PORTAL</h1>
-      <p>Welcome to Orland Management</p>
-
-      <button onclick="login()">Login</button>
-      <button onclick="register()">Register</button>
-    </div>
-  `;
 }
-
-window.login = () => redirectToSSO(portal, "/");
-window.register = () => redirectToRegister(portal);
-
 init();
 </script>
-
 </body>
 </html>

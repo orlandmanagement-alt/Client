@@ -1,22 +1,25 @@
 import config from "./config.js";
 
-async function safeFetch(url, options = {}){
-  try{
-    const res = await fetch(config.API_BASE + url, {
-      credentials: "include",
+async function safeFetch(endpoint, options = {}) {
+  try {
+    const res = await fetch(config.API_BASE + endpoint, {
+      credentials: "include", // WAJIB untuk lintas-domain SSO
       ...options
     });
 
     const text = await res.text();
-
     let data = {};
-    try{
-      data = JSON.parse(text);
-    }catch{}
+    try { data = JSON.parse(text); } catch {}
 
-    return { ok: res.ok, data };
-  }catch(e){
-    return { ok:false, data:{ message:"network_error" } };
+    // Otomatis tendang ke SSO jika sesi habis/tidak valid (401)
+    if (res.status === 401) {
+        window.location.href = config.SSO_URL;
+        return { ok: false, data: { message: "Sesi Habis" }};
+    }
+
+    return { ok: res.ok, status: res.status, data };
+  } catch(e) {
+    return { ok: false, status: 500, data: { message: "network_error" } };
   }
 }
 

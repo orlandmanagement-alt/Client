@@ -1,3 +1,1 @@
-export const state = {
-  user: null
-};
+export const state = { user: null, portal: "client" };
