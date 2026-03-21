@@ -2,123 +2,69 @@ import { apiGet, apiPost } from "/assets/js/api.js";
 
 export async function render() {
     return `
-    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 min-h-[75vh]">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-            <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-building text-blue-600 mr-2"></i> Profil Perusahaan</h2>
-            <button onclick="window.ClientProfile.save()" id="btn-save-prof" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-[13px] font-bold shadow-sm hover:bg-blue-700 transition-colors">Simpan Perubahan</button>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="md:col-span-1 flex flex-col items-center text-center">
-                <input type="file" id="inp_logo" accept="image/*" class="hidden" onchange="window.ClientProfile.handleUpload(event)">
-                
-                <div onclick="document.getElementById('inp_logo').click()" class="w-32 h-32 bg-slate-100 rounded-2xl border-4 border-white shadow-md flex items-center justify-center text-4xl text-slate-300 mb-4 overflow-hidden relative group cursor-pointer bg-cover bg-center" id="prof_avatar">
-                    <i class="fa-solid fa-camera" id="prof_icon"></i>
-                    <div class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center text-white text-[10px] font-bold uppercase tracking-widest transition-all">Ubah Logo</div>
+    <div class="p-6 max-w-3xl mx-auto space-y-6">
+        <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 relative overflow-hidden">
+            <div class="flex flex-col md:flex-row gap-6 items-center relative z-10">
+                <div class="w-24 h-24 bg-slate-900 rounded-[2rem] flex items-center justify-center text-white text-3xl font-black">
+                    O
                 </div>
-                <h3 id="prof_name" class="font-bold text-slate-800 text-lg leading-tight">Memuat...</h3>
-                <p id="prof_email" class="text-xs text-slate-500 mb-4 mt-1">-</p>
-            </div>
-            
-            <div class="md:col-span-2 space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Perusahaan</label>
-                        <input type="text" id="inp_company" class="w-full border border-slate-200 rounded-lg py-2.5 px-3 outline-none text-[13px] font-bold text-slate-800 bg-slate-50 focus:bg-white focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Jenis Industri</label>
-                        <select id="inp_industry" class="w-full border border-slate-200 rounded-lg py-2.5 px-3 outline-none text-[13px] font-bold text-slate-800 bg-slate-50 focus:bg-white focus:border-blue-500">
-                            <option value="Production House">Production House</option>
-                            <option value="Advertising Agency">Advertising Agency</option>
-                            <option value="Brand / Corporate">Brand / Corporate</option>
-                        </select>
-                    </div>
+                <div class="flex-1 text-center md:text-left">
+                    <h2 id="c-display-name" class="text-2xl font-black text-slate-800">Orland Management</h2>
+                    <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Verified Client Account</p>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nama Kontak (PIC)</label>
-                        <input type="text" id="inp_pic" class="w-full border border-slate-200 rounded-lg py-2.5 px-3 outline-none text-[13px] font-bold text-slate-800 bg-slate-50 focus:bg-white focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">No. HP / WhatsApp</label>
-                        <input type="tel" id="inp_phone" class="w-full border border-slate-200 rounded-lg py-2.5 px-3 outline-none text-[13px] font-bold text-slate-800 bg-slate-50 focus:bg-white focus:border-blue-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Alamat Lengkap</label>
-                    <textarea id="inp_address" rows="3" class="w-full border border-slate-200 rounded-lg py-2 px-3 outline-none text-[13px] font-bold text-slate-800 bg-slate-50 focus:bg-white focus:border-blue-500"></textarea>
-                </div>
+                <button onclick="window.saveClientProfile()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black text-xs shadow-xl active:scale-95 transition-all">Update</button>
             </div>
         </div>
-    </div>
-    `;
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-100">
+                    <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block">Nama Perusahaan / Brand</label>
+                    <input type="text" id="c-name" class="w-full bg-slate-50 border-none rounded-xl p-3 text-xs font-bold outline-none ring-blue-500/10 focus:ring-4">
+                </div>
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-100">
+                    <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block">Website URL</label>
+                    <input type="text" id="c-web" class="w-full bg-slate-50 border-none rounded-xl p-3 text-xs font-bold">
+                </div>
+                <div class="bg-white p-6 rounded-[2rem] border border-slate-100">
+                    <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block">Nomor Telepon Kantor</label>
+                    <input type="text" id="c-phone" class="w-full bg-slate-50 border-none rounded-xl p-3 text-xs font-bold">
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 flex flex-col">
+                <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block">Deskripsi & Alamat</label>
+                <textarea id="c-desc" rows="4" class="w-full bg-slate-50 border-none rounded-2xl p-4 text-xs font-bold mb-4" placeholder="Jelaskan bisnis Anda..."></textarea>
+                <textarea id="c-address" rows="3" class="w-full bg-slate-50 border-none rounded-2xl p-4 text-xs font-bold" placeholder="Alamat lengkap kantor..."></textarea>
+            </div>
+        </div>
+    </div>`;
 }
 
 export async function initEvents() {
-    window.ClientProfile = {
-        state: { logo_base64: null },
-        
-        load: async () => {
-            try {
-                const res = await apiGet('/api/client/profile_get'); // Endpoint profil khusus client
-                if(res.ok && res.data) {
-                    const d = res.data;
-                    document.getElementById('prof_name').textContent = d.company_name || 'Nama Perusahaan';
-                    document.getElementById('prof_email').textContent = d.email || '-';
-                    document.getElementById('inp_company').value = d.company_name || '';
-                    document.getElementById('inp_industry').value = d.industry_type || 'Production House';
-                    document.getElementById('inp_pic').value = d.contact_name || '';
-                    document.getElementById('inp_phone').value = d.contact_phone || '';
-                    document.getElementById('inp_address').value = d.billing?.company_address || '';
-                    
-                    if(d.logo_url) {
-                        document.getElementById('prof_avatar').style.backgroundImage = `url('${d.logo_url}')`;
-                        document.getElementById('prof_icon').style.display = 'none';
-                    }
-                }
-            } catch(e) {}
-        },
-        
-        handleUpload: (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const base64 = event.target.result;
-                window.ClientProfile.state.logo_base64 = base64;
-                document.getElementById('prof_avatar').style.backgroundImage = `url('${base64}')`;
-                document.getElementById('prof_icon').style.display = 'none';
-            };
-            reader.readAsDataURL(file);
-        },
-        
-        save: async () => {
-            const btn = document.getElementById('btn-save-prof');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
-            
-            const payload = {
-                company_name: document.getElementById('inp_company').value,
-                industry_type: document.getElementById('inp_industry').value,
-                contact_name: document.getElementById('inp_pic').value,
-                contact_phone: document.getElementById('inp_phone').value,
-                billing: { company_address: document.getElementById('inp_address').value },
-                logo_base64: window.ClientProfile.state.logo_base64
-            };
-            
-            try {
-                const res = await apiPost('/api/client/profile_update', payload);
-                if(res.ok) {
-                    alert('Profil berhasil diperbarui!');
-                    document.getElementById('prof_name').textContent = payload.company_name;
-                } else {
-                    alert('Gagal menyimpan profil: ' + (res.data?.message || 'Error'));
-                }
-            } catch(e) { alert('Terjadi kesalahan jaringan.'); }
-            
-            btn.innerHTML = 'Simpan Perubahan';
+    const res = await apiGet('/api/client/profile_get');
+    if(res.ok && res.data) {
+        const d = res.data;
+        document.getElementById('c-name').value = d.company_name;
+        document.getElementById('c-display-name').textContent = d.company_name;
+        document.getElementById('c-web').value = d.website_url;
+        document.getElementById('c-phone').value = d.contact_phone;
+        document.getElementById('c-desc').value = d.company_description;
+        document.getElementById('c-address').value = d.office_address;
+    }
+
+    window.saveClientProfile = async () => {
+        const payload = {
+            name: document.getElementById('c-name').value,
+            web: document.getElementById('c-web').value,
+            phone: document.getElementById('c-phone').value,
+            desc: document.getElementById('c-desc').value,
+            address: document.getElementById('c-address').value
+        };
+        const update = await apiPost('/api/client/profile_update', payload);
+        if(update.ok) {
+            alert("Profil Orland Management Diperbarui!");
+            document.getElementById('c-display-name').textContent = payload.name;
         }
     };
-
-    window.ClientProfile.load();
 }
