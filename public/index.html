@@ -3,25 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orland Client - Dashboard</title>
+    <title>Client Portal - Orland Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        #app { transition: opacity 0.2s ease-in-out; }
-        .nav-active { opacity: 1 !important; color: #3b82f6 !important; transform: scale(1.2); }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { primary: '#2563eb' }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }
+    </script>
 </head>
-<body class="antialiased">
-    <div id="app" class="min-h-screen pb-28 opacity-1"></div>
+<body class="bg-slate-50 text-slate-800 antialiased">
 
-    <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/95 backdrop-blur-xl px-10 py-5 rounded-[3rem] flex gap-12 text-white shadow-2xl z-50 border border-white/5">
-        <a href="#dashboard" class="nav-link opacity-40 transition-all" data-route="dashboard"><i class="fa-solid fa-grid-2 text-sm"></i></a>
-        <a href="#search_filter" class="nav-link opacity-40 transition-all" data-route="search_filter"><i class="fa-solid fa-magnifying-glass text-sm"></i></a>
-        <a href="#notifications" class="nav-link opacity-40 transition-all" data-route="notifications"><i class="fa-solid fa-bell text-sm"></i></a>
-        <a href="#settings" class="nav-link opacity-40 transition-all" data-route="settings"><i class="fa-solid fa-user-gear text-sm"></i></a>
-    </nav>
+    <div id="global-loader" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] animate-pulse">O R L A N D • C L I E N T</p>
+    </div>
 
-    <script type="module" src="/assets/js/router_client.js"></script>
+    <div id="app-shell" class="flex min-h-screen hidden">
+        
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col">
+            <div class="p-6">
+                <div class="text-xl font-black text-blue-600 tracking-tighter italic">ORLAND<span class="text-slate-400 font-light">CLIENT</span></div>
+            </div>
+            
+            <nav class="mt-2 px-4 space-y-1 flex-1 overflow-y-auto">
+                <p class="px-3 text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2 mt-4">Menu Utama</p>
+                <a href="javascript:void(0)" onclick="loadModule('dashboard', this)" class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-100 transition-all font-semibold text-[13px] text-slate-600">
+                    <i class="fa-solid fa-grid-2 w-4 text-center text-gray-400"></i> Dashboard
+                </a>
+                <a href="javascript:void(0)" onclick="loadModule('search', this)" class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-100 transition-all font-semibold text-[13px] text-slate-600">
+                    <i class="fa-solid fa-users-viewfinder w-4 text-center text-gray-400"></i> Cari Talent
+                </a>
+                <a href="javascript:void(0)" onclick="loadModule('projects', this)" class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-100 transition-all font-semibold text-[13px] text-slate-600">
+                    <i class="fa-solid fa-briefcase w-4 text-center text-gray-400"></i> Manajemen Proyek
+                </a>
+                <a href="javascript:void(0)" onclick="loadModule('casting_grid', this)" class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-100 transition-all font-semibold text-[13px] text-slate-600">
+                    <i class="fa-solid fa-clapperboard w-4 text-center text-gray-400"></i> Live Casting
+                </a>
+                <a href="javascript:void(0)" onclick="loadModule('bookings', this)" class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-100 transition-all font-semibold text-[13px] text-slate-600">
+                    <i class="fa-solid fa-calendar-check w-4 text-center text-gray-400"></i> Pesanan & Kontrak
+                </a>
+
+                <p class="px-3 text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2 mt-6 border-t border-slate-100 pt-4">Keuangan & Akun</p>
+                <a href="javascript:void(0)" onclick="loadModule('wallet', this)" class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-100 transition-all font-semibold text-[13px] text-slate-600">
+                    <i class="fa-solid fa-wallet w-4 text-center text-gray-400"></i> Saldo & Tagihan
+                </a>
+                <a href="javascript:void(0)" onclick="loadModule('profile', this)" class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-100 transition-all font-semibold text-[13px] text-slate-600">
+                    <i class="fa-solid fa-building w-4 text-center text-gray-400"></i> Profil Perusahaan
+                </a>
+                <a href="javascript:void(0)" onclick="loadModule('session_management', this)" class="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-100 transition-all font-semibold text-[13px] text-slate-600">
+                    <i class="fa-solid fa-shield-halved w-4 text-center text-gray-400"></i> Keamanan Sesi
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-100">
+                <button onclick="logout()" class="flex items-center justify-center gap-2 p-3 w-full bg-red-50 text-red-600 hover:bg-red-100 rounded-xl transition-all font-black uppercase text-xs tracking-widest">
+                    <i class="fa-solid fa-power-off"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 lg:ml-64 flex flex-col min-h-screen relative">
+            
+            <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-40">
+                <div class="flex items-center gap-3">
+                    <button id="mobile-menu-btn" class="lg:hidden w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors">
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
+                    <span class="font-black text-blue-600 tracking-tighter lg:hidden">ORLAND</span>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-4 relative">
+                    
+                    <div class="relative">
+                        <button id="btn-notif" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors relative">
+                            <i class="fa-solid fa-bell"></i>
+                            <span id="badge-notif" class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full hidden"></span>
+                        </button>
+                        
+                        <div id="drop-notif" class="hidden absolute right-0 mt-3 w-72 sm:w-80 bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden flex flex-col z-50 transform origin-top-right transition-all">
+                            <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                                <span class="font-black text-sm text-slate-800">Notifikasi</span>
+                                <button class="text-[10px] text-blue-600 font-bold hover:underline">Tandai Dibaca</button>
+                            </div>
+                            <div id="list-notif" class="max-h-64 overflow-y-auto p-2">
+                                <div class="text-center text-xs text-slate-400 py-6 font-bold">Belum ada notifikasi.</div>
+                            </div>
+                            <button onclick="loadModule('notifications'); document.getElementById('drop-notif').classList.add('hidden')" class="p-3 text-center text-xs font-black text-blue-600 bg-slate-50 hover:bg-blue-50 transition-colors border-t border-slate-100">
+                                Lihat Semua Notifikasi <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <button id="btn-profile" class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 border-2 border-white shadow-sm flex items-center justify-center font-black overflow-hidden hover:ring-2 ring-blue-300 transition-all">
+                            <span id="avatar-initial">C</span>
+                        </button>
+                        
+                        <div id="drop-profile" class="hidden absolute right-0 mt-3 w-64 bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden flex flex-col z-50 transform origin-top-right transition-all">
+                            <div class="p-4 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-black text-lg flex-shrink-0" id="dd-avatar">C</div>
+                                <div class="overflow-hidden">
+                                    <h4 class="font-black text-sm text-slate-800 truncate" id="dd-name">Memuat...</h4>
+                                    <p class="text-[10px] text-slate-500 font-bold truncate" id="dd-email">...</p>
+                                </div>
+                            </div>
+                            <div class="p-2 flex flex-col gap-1">
+                                <button onclick="loadModule('profile'); document.getElementById('drop-profile').classList.add('hidden')" class="text-left flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-[13px] text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">
+                                    <i class="fa-solid fa-building w-4 text-center"></i> Profil Perusahaan
+                                </button>
+                                <button onclick="loadModule('wallet'); document.getElementById('drop-profile').classList.add('hidden')" class="text-left flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-[13px] text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">
+                                    <i class="fa-solid fa-wallet w-4 text-center"></i> Dompet Tagihan
+                                </button>
+                                <button onclick="loadModule('session_management'); document.getElementById('drop-profile').classList.add('hidden')" class="text-left flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-[13px] text-slate-600 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors">
+                                    <i class="fa-solid fa-shield-halved w-4 text-center"></i> Keamanan Sesi
+                                </button>
+                            </div>
+                            <div class="p-2 border-t border-slate-100">
+                                <button onclick="logout()" class="w-full text-left flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 rounded-xl transition-colors">
+                                    <i class="fa-solid fa-arrow-right-from-bracket w-4 text-center"></i> Logout Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </header>
+
+            <div id="main-content" class="p-4 md:p-8 max-w-7xl mx-auto w-full flex-1">
+                </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { checkSession, logout } from "./assets/js/session_manager.js";
+        import { loadModule } from "./assets/js/ui.js";
+        import config from "./assets/js/config.js";
+
+        window.loadModule = loadModule;
+        window.logout = logout;
+
+        async function init() {
+            const loader = document.getElementById('global-loader');
+            const shell = document.getElementById('app-shell');
+
+            try {
+                const user = await checkSession();
+                
+                if (user && user.role === 'client') {
+                    // Update Data Profil di Dropdown
+                    document.getElementById('dd-name').textContent = user.full_name || 'Client Orland';
+                    document.getElementById('dd-email').textContent = user.email || '';
+                    const initial = (user.full_name || 'C').charAt(0).toUpperCase();
+                    document.getElementById('avatar-initial').textContent = initial;
+                    document.getElementById('dd-avatar').textContent = initial;
+
+                    loader.classList.add('opacity-0');
+                    setTimeout(() => {
+                        loader.classList.add('hidden');
+                        shell.classList.remove('hidden');
+                        loadModule('dashboard'); 
+                        fetchNotifications(); // Ambil 5 notif terbaru
+                    }, 500);
+                } else {
+                    window.location.href = `${config.SSO_URL}/?redirect=client`;
+                }
+            } catch (e) {
+                window.location.href = `${config.SSO_URL}/?redirect=client`;
+            }
+        }
+
+        // Fungsi Ambil Notifikasi Ringan
+        async function fetchNotifications() {
+            try {
+                const res = await fetch(`${config.API_BASE}/api/notifications`, {credentials: 'include'}).then(r=>r.json());
+                if(res.ok && res.data && res.data.items && res.data.items.length > 0) {
+                    const items = res.data.items.slice(0, 5); // Ambil max 5
+                    document.getElementById('badge-notif').classList.remove('hidden');
+                    document.getElementById('list-notif').innerHTML = items.map(n => `
+                        <div class="p-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer rounded-lg mb-1">
+                            <h5 class="text-xs font-black text-slate-800 mb-0.5">${n.title || 'Notifikasi'}</h5>
+                            <p class="text-[10px] text-slate-500 leading-tight line-clamp-2">${n.message || n.body || ''}</p>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {}
+        }
+
+        // Logic UI Interaktif (Dropdown & Sidebar)
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnMenu = document.getElementById('mobile-menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            const btnNotif = document.getElementById('btn-notif');
+            const dropNotif = document.getElementById('drop-notif');
+            const btnProfile = document.getElementById('btn-profile');
+            const dropProfile = document.getElementById('drop-profile');
+
+            // Toggle Sidebar
+            btnMenu?.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('-translate-x-full'); });
+            
+            // Toggle Notif
+            btnNotif?.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                dropNotif.classList.toggle('hidden'); 
+                dropProfile.classList.add('hidden'); // Tutup profile jika terbuka
+            });
+            
+            // Toggle Profile
+            btnProfile?.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                dropProfile.classList.toggle('hidden'); 
+                dropNotif.classList.add('hidden'); // Tutup notif jika terbuka
+            });
+
+            // Klik di luar layar untuk menutup semuanya
+            document.addEventListener('click', (e) => {
+                if(!dropNotif.contains(e.target)) dropNotif.classList.add('hidden');
+                if(!dropProfile.contains(e.target)) dropProfile.classList.add('hidden');
+                if(window.innerWidth < 1024 && !sidebar.contains(e.target) && !btnMenu.contains(e.target)) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+        });
+
+        init();
+    </script>
 </body>
 </html>
